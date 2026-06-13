@@ -1,0 +1,10 @@
+# Backups automáticos
+cacique_backup_*.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp

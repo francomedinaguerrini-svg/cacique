@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mutual del Cacique</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0ede8;color:#1a1a1a;font-size:14px}
+
+.sidebar{position:fixed;left:0;top:0;width:190px;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid #2a2a2a}
+.sidebar-logo h1{font-size:14px;font-weight:700;color:#fff;line-height:1.3}
+.sidebar-logo p{font-size:11px;color:#666;margin-top:2px}
+
+/* IPIM bar en sidebar */
+.ipim-bar{margin:10px 12px;background:#1a2a1a;border:1px solid #2a4a2a;border-radius:6px;padding:10px 12px}
+.ipim-bar-label{font-size:10px;color:#5a8a5a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.ipim-bar-mes{font-size:13px;font-weight:600;color:#7dcc99}
+.ipim-bar-datos{font-size:11px;color:#5a8a5a;margin-top:2px}
+.ipim-bar-cuota{font-size:16px;font-weight:700;color:#4caf80;margin-top:4px}
+.ipim-bar-btn{display:block;width:100%;margin-top:8px;padding:5px;background:#2a4a2a;border:none;border-radius:4px;color:#7dcc99;font-size:11px;cursor:pointer;text-align:center}
+.ipim-bar-btn:hover{background:#3a6a3a}
+
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13px;color:#777;border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{color:#fff;background:#1a1a1a}
+.nav-item.active{color:#fff;background:#1a1a1a;border-left-color:#4caf80}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.main{margin-left:190px;min-height:100vh;padding:20px}
+
+.page{display:none}.page.active{display:block}
+.page-title{font-size:20px;font-weight:700;margin-bottom:2px}
+.page-sub{color:#888;font-size:13px;margin-bottom:20px}
+
+.card{background:#fff;border-radius:10px;border:1px solid #e8e8e8;padding:20px;margin-bottom:16px}
+.card-title{font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* Métrica grande */
+.metric{background:#fff;border-radius:8px;border:1px solid #e8e8e8;padding:16px}
+.metric-label{font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.metric-val{font-size:28px;font-weight:700}
+.metric-val.verde{color:#1a7a45}
+.metric-val.rojo{color:#b03030}
+.metric-val.amber{color:#7a4f00}
+.metric-sub{font-size:11px;color:#aaa;margin-top:4px}
+.progress-bar{height:4px;background:#eee;border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:#4caf80;border-radius:2px}
+
+/* Tabla */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;background:#fafafa;border-bottom:2px solid #f0f0f0;font-weight:600;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-verde{background:#e6f4ed;color:#1a7a45}
+.badge-rojo{background:#fde8e8;color:#b03030}
+.badge-amber{background:#fdf3e0;color:#7a4f00}
+.badge-gris{background:#f0f0f0;color:#777}
+.badge-azul{background:#e8f0fe;color:#1a3a8a}
+.badge-violeta{background:#f0e8fe;color:#4a1a8a}
+.badge-rojo-oscuro{background:#fce4e4;color:#8b0000}
+.badge-verde-ok{background:#e6f4ed;color:#1a5a30}
+
+/* Forms */
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-size:12px;color:#666;font-weight:600}
+.field input,.field select,.field textarea{padding:8px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;color:#1a1a1a;background:#fff;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:#4caf80;box-shadow:0 0 0 2px rgba(76,175,128,.12)}
+.form-row{display:grid;gap:12px;margin-bottom:0}
+.form-row.c2{grid-template-columns:1fr 1fr}
+.form-row.c3{grid-template-columns:1fr 1fr 1fr}
+
+.btn{padding:8px 16px;border-radius:6px;border:1px solid #ddd;cursor:pointer;font-size:13px;font-weight:600;background:#fff;color:#333;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#1a7a45;color:#fff;border-color:#1a7a45}
+.btn-primary:hover{background:#155838}
+.btn-danger{background:#b03030;color:#fff;border-color:#b03030}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.alert-ok{background:#e6f4ed;color:#1a7a45;border:1px solid #a8d5bb}
+.alert-err{background:#fde8e8;color:#b03030;border:1px solid #f0b8b8}
+
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #f0f0f0}
+.tab{padding:8px 18px;cursor:pointer;font-size:13px;font-weight:600;color:#aaa;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tab.active{color:#1a7a45;border-bottom-color:#1a7a45}
+
+/* Input pago inline */
+.pago-input{width:110px;padding:5px 7px;border:1px solid #ddd;border-radius:5px;font-size:12px;text-align:right}
+.pago-input:focus{outline:none;border-color:#4caf80}
+
+/* Modal IPIM */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:28px;width:460px;max-width:95vw}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:13px;color:#888;margin-bottom:20px}
+.modal-close{float:right;background:none;border:none;font-size:18px;cursor:pointer;color:#aaa;margin-top:-4px}
+
+/* Historial periodos en modal */
+.periodo-list{max-height:240px;overflow-y:auto;border:1px solid #f0f0f0;border-radius:6px;margin-top:12px}
+.periodo-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #f5f5f5;font-size:13px}
+.periodo-row:last-child{border-bottom:none}
+.periodo-row.activo{background:#f0faf5;font-weight:600}
+
+/* Recibo print */
+@media print{
+  .sidebar,.no-print{display:none!important}
+  .main{margin-left:0!important;padding:0!important}
+  .page{display:none!important}
+  #print-zone{display:block!important}
+}
+#print-zone{display:none}
+
+.scroll-y{max-height:300px;overflow-y:auto}
+.empty-state{text-align:center;padding:32px;color:#aaa;font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Mutual del Cacique</h1>
+    <p>Cooperativa de vivienda</p>
+  </div>
+
+  <!-- IPIM activo siempre visible -->
+  <div class="ipim-bar" id="sidebar-ipim">
+    <div class="ipim-bar-label">Período activo</div>
+    <div class="ipim-bar-mes" id="sb-mes">—</div>
+    <div class="ipim-bar-datos" id="sb-datos">Sin datos</div>
+    <div class="ipim-bar-cuota" id="sb-cuota"></div>
+    <button class="ipim-bar-btn" onclick="abrirModalIPIM()">✏️ Actualizar IPIM</button>
+  </div>
+
+  <div style="padding:8px 0;flex:1;overflow-y:auto">
+    <div class="nav-item active" onclick="showPage('informes');setTimeout(()=>showSubTab('informes','tesorero'),50)"><span class="nav-icon">📄</span> Informes</div>
+    <div class="nav-item" onclick="showPage('informes');setTimeout(()=>showSubTab('informes','estado'),50)"><span class="nav-icon">👤</span> Estado por socio</div>
+    <div class="nav-item" onclick="showPage('pagos')"><span class="nav-icon">💰</span> Cargar pagos</div>
+    <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">📊</span> Resumen</div>
+    <div class="nav-item" onclick="showPage('socios')"><span class="nav-icon">👥</span> Socios</div>
+    <div class="nav-item" onclick="showPage('config')"><span class="nav-icon">⚙️</span> Config</div>
+  </div>
+  <div style="padding:10px 14px;border-top:1px solid #222;font-size:10px;color:#444">
+    Datos guardados en este navegador
+  </div>
+</div>
+
+<!-- Modal IPIM -->
+<div class="modal-overlay" id="modal-ipim">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarModalIPIM()">✕</button>
+    <div class="modal-title">Actualizar IPIM</div>
+    <div class="modal-sub">Ingresá el índice del nuevo mes. El coeficiente se calcula solo.</div>
+    <div class="form-row c3">
+      <div class="field"><label>Año</label><input type="number" id="m-year" value="2026" min="2016" max="2035"></div>
+      <div class="field"><label>Mes</label>
+        <select id="m-mes">
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6" selected>Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+      <div class="field"><label>Cuota ($)</label><input type="number" id="m-cuota" placeholder="55000"></div>
+    </div>
+    <div class="form-row c2">
+      <div class="field"><label>Valor IPIM</label><input type="number" id="m-ipim" step="0.0001" placeholder="Ej: 11363.09" oninput="previewCoef()"></div>
+      <div class="field"><label>Coeficiente (auto)</label>
+        <input type="text" id="m-coef" readonly style="background:#f5f5f5;color:#1a7a45;font-weight:700">
+      </div>
+    </div>
+    <div id="modal-msg"></div>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="guardarIPIM()">💾 Guardar período</button>
+      <button class="btn" onclick="cerrarModalIPIM()">Cancelar</button>
+    </div>
+    <div class="periodo-list" id="periodos-lista"></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page">
+  <div class="page-title">Resumen</div>
+  <div id="dash-sub" class="page-sub"></div>
+  <div id="dash-total-banner" style="background:#1a1a1a;border-radius:10px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Total deuda a cobrar</div>
+      <div id="dash-total-monto" style="font-size:36px;font-weight:800;color:#4caf80"></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">Socios con deuda</div>
+      <div id="dash-total-count" style="font-size:28px;font-weight:700;color:#e8a020"></div>
+    </div>
+  </div>
+  <div class="grid4" id="dash-metrics" style="margin-bottom:20px"></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Pendientes de pago</div>
+      <div id="dash-pendientes"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pagaron este mes</div>
+      <div id="dash-pagaron"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">📋 Plan de pagos activo — 12 cuotas desde Junio 2026</div>
+    <div id="dash-plan-pago"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Deuda histórica por socio</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Socio</th><th>Lote</th><th>Deuda histórica</th><th>Estado legal</th><th>Este mes</th></tr></thead>
+        <tbody id="dash-ranking"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGOS -->
+<div id="page-pagos" class="page">
+  <div class="page-title">Cargar pagos</div>
+  <div id="pagos-sub" class="page-sub"></div>
+
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+    <select id="pagos-periodo" onchange="renderPagos()" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-weight:600;min-width:200px"></select>
+    <input type="text" id="pagos-search" placeholder="🔍 Buscar socio..." style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;width:220px" oninput="renderPagos()">
+    <button class="btn" onclick="marcarTodosPagado()" style="margin-left:auto">✅ Marcar todos como pagado</button>
+    <button class="btn btn-primary" onclick="guardarPagos()">💾 Guardar pagos</button>
+  </div>
+
+  <div id="pagos-msg"></div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table>
+      <thead><tr><th>Socio</th><th>Lote</th><th>Estado legal</th><th>Cuota ideal</th><th>Monto cuota</th><th>Cuota plan</th><th>Diferencia</th><th>Estado</th><th>Nº Comprobante</th><th>Obs.</th></tr></thead>
+      <tbody id="pagos-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SOCIOS -->
+<div id="page-socios" class="page">
+  <div class="page-title">Socios</div>
+  <div class="page-sub">Padrón completo — <span id="socios-count"></span> socios registrados</div>
+  <div class="tabs">
+    <div class="tab active" onclick="showSubTab('socios','lista')">Listado</div>
+    <div class="tab" onclick="showSubTab('socios','nuevo')">Nuevo socio</div>
+  </div>
+  <div id="socios-lista">
+    <div style="display:flex;gap:12px;margin-bottom:12px">
+      <input type="text" placeholder="🔍 Buscar por nombre o DNI..." style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;flex:1" oninput="renderSocios(this.value)">
+      <select id="filtro-estado" onchange="renderSocios(document.querySelector('#socios-lista input').value)" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+        <option value="">Todos los estados</option>
+        <option>Plan de Pago</option><option>Edicto</option><option>CD</option>
+        <option>Escribano</option><option>Deuda vigente Paga cuota</option>
+      </select>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table>
+        <thead><tr><th>#</th><th>Nombre</th><th>DNI</th><th>Teléfono</th><th>Email</th><th>Lote</th><th>Estado legal</th><th></th></tr></thead>
+        <tbody id="socios-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="socios-nuevo" style="display:none">
+    <div class="card">
+      <div class="card-title">Nuevo socio</div>
+      <div class="form-row c2">
+        <div class="field"><label>Apellido y nombre *</label><input id="ns-nombre" type="text"></div>
+        <div class="field"><label>DNI *</label><input id="ns-dni" type="text"></div>
+      </div>
+      <div class="form-row c2">
+        <div class="field"><label>Teléfono</label><input id="ns-tel" type="text"></div>
+        <div class="field"><label>Email</label><input id="ns-email" type="email"></div>
+      </div>
+      <div class="form-row c2">
+        <div class="field"><label>Domicilio</label><input id="ns-dir" type="text"></div>
+        <div class="field"><label>Lote</label><input id="ns-lote" type="text" placeholder="Ej: A-05"></div>
+      </div>
+      <div class="form-row c2">
+        <div class="field"><label>Fecha de ingreso</label><input id="ns-fecha" type="date"></div>
+        <div class="field"><label>Estado legal</label>
+          <select id="ns-estado">
+            <option value="">Sin estado especial</option>
+            <option>Plan de Pago</option><option>Edicto</option><option>CD</option>
+            <option>Escribano</option><option>Deuda vigente Paga cuota</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Observaciones</label><input id="ns-obs" type="text"></div>
+      <div class="form-row c2">
+        <div class="field"><label>Saldo inicial ($) — deuda al ingresar</label><input id="ns-saldo" type="number" placeholder="0" value="0"></div>
+        <div class="field"></div>
+      </div>
+      <input type="hidden" id="ns-edit-id" value="">
+      <div id="ns-msg"></div>
+      <div class="btns">
+        <button class="btn btn-primary" onclick="guardarSocio()">💾 Guardar</button>
+        <button class="btn" onclick="limpiarNS()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INFORMES -->
+<div id="page-informes" class="page active">
+  <div class="page-title">Informes</div>
+  <div class="page-sub">Generá reportes para imprimir o compartir.</div>
+  <div class="tabs">
+    <div class="tab active" onclick="showSubTab('informes','tesorero')">Informe tesorero</div>
+    <div class="tab" onclick="showSubTab('informes','deudores')">Listado deudores</div>
+  </div>
+
+  <div id="informes-estado" style="display:none">
+    <div class="card">
+      <div class="field"><label>Socio</label>
+        <select id="i2-socio"><option value="">Todos los socios</option></select>
+      </div>
+      <div class="btns no-print">
+        <button class="btn btn-primary" onclick="genEstado()">📄 Generar</button>
+        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <div id="i2-resultado"></div>
+  </div>
+
+  <div id="informes-deudores" style="display:none">
+    <div class="card">
+      <div class="form-row c3">
+        <div class="field"><label>Período</label><select id="i1-periodo"></select></div>
+        <div class="field"><label>Mostrar</label>
+          <select id="i1-filtro">
+            <option value="todos">Todos</option>
+            <option value="deuda">Solo con deuda</option>
+            <option value="aldia">Solo al día</option>
+          </select>
+        </div>
+        <div class="field"><label>Ordenar por</label>
+          <select id="i1-orden">
+            <option value="deuda">Mayor deuda</option>
+            <option value="nombre">Nombre</option>
+          </select>
+        </div>
+      </div>
+      <div class="btns no-print">
+        <button class="btn btn-primary" onclick="genDeudores()">📄 Generar</button>
+        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <div id="i1-resultado"></div>
+  </div>
+
+  <div id="informes-tesorero">
+    <div class="no-print" style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-primary" onclick="genTesorero()">🔄 Actualizar</button>
+      <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    </div>
+    <div id="tes-resultado"></div>
+  </div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div id="page-config" class="page">
+  <div class="page-title">Configuración</div>
+  <div class="page-sub">Importá datos y gestioná el sistema.</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Socios</div>
+      <div id="cfg-stats" style="font-size:13px;color:#666;margin-bottom:14px"></div>
+      <div class="btns">
+        <button class="btn btn-primary" onclick="cargarSociosExcel()">📥 Cargar socios del Excel</button>
+        <button class="btn" onclick="inyectarSaldos()">💉 Actualizar saldos históricos</button>
+        <button class="btn" onclick="cargarIPIMHistorico()">📈 Cargar IPIM 2016-2026</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmarBorrarSocios()">Borrar socios</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Backup</div>
+      <div class="btns">
+        <button class="btn" onclick="exportar()">📤 Exportar backup</button>
+        <button class="btn" onclick="document.getElementById('f-import').click()">📥 Importar backup</button>
+      </div>
+      <input type="file" id="f-import" style="display:none" accept=".json" onchange="importar(this)">
+      <hr style="border:none;border-top:1px solid #f0f0f0;margin:14px 0">
+      <button class="btn btn-danger btn-sm" onclick="confirmarBorrarTodo()">⚠️ Borrar todo</button>
+    </div>
+  </div>
+  <div id="cfg-msg"></div>
+</div>
+
+</div><!-- /main -->
+
+<!-- Zona de impresión -->
+<div id="print-zone"></div>
+
+<script>
+// =========================================================
+// STORAGE
+// =========================================================
+const DB = {
+  get: k => { try { const v=localStorage.getItem('cac_'+k); return v?JSON.parse(v):null; }catch(e){return null;} },
+  set: (k,v) => { try { localStorage.setItem('cac_'+k,JSON.stringify(v)); }catch(e){} },
+  del: k => { try { localStorage.removeItem('cac_'+k); }catch(e){} }
+};
+const getSocios = () => DB.get('socios')||[];
+const getIPIM   = () => DB.get('ipim')||[];
+const getPagos  = () => DB.get('pagos')||{};
+
+// =========================================================
+// HELPERS
+// =========================================================
+const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const fmt   = n => n!=null ? Math.round(n).toLocaleString('es-AR') : '-';
+const fmtD  = (n,d=4) => n!=null ? Number(n).toFixed(d) : '-';
+const pKey  = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
+const pLabel= (y,m) => `${MESES[m]} ${y}`;
+
+function ultimoPeriodo(){
+  const ip=getIPIM(); return ip.length ? ip[ip.length-1] : null;
+}
+
+function estadoBadge(e){
+  if(!e) return '';
+  const cls = {
+    'Edicto':'badge-rojo-oscuro','Plan de Pago':'badge-amber',
+    'CD':'badge-azul','Escribano':'badge-violeta',
+    'Deuda vigente Paga cuota':'badge-verde-ok'
+  }[e]||'badge-gris';
+  return `<span class="badge ${cls}">${e}</span>`;
+}
+
+function calcDeudaTotal(socioId){
+  const socios = getSocios();
+  const socio = socios.find(s=>s.id===socioId);
+  const saldoBase = parseFloat(socio?.saldoBase||0); // deuda al 30/06/2026
+
+  // El saldoBase YA incluye la deuda del plan para los socios con plan de pago
+  // (porque el Excel los tiene con saldo 0 — el plan reemplaza la deuda histórica)
+  // Así que sumamos el saldo del plan POR SEPARADO
+  const planSaldo = PLAN_PAGO[socio?.dni] ? saldoPlan(socio.dni) : 0;
+
+  const ipim = getIPIM();
+  const pagos = getPagos();
+
+  // Solo aplicar períodos POSTERIORES al corte (Jul 2026 en adelante)
+  const CORTE = '2026-06';
+  const periodosNuevos = ipim.filter(p => pKey(p.year,p.mes) > CORTE);
+
+  // Deuda por cuotas: saldoBase + meses nuevos
+  let saldoCuotas = saldoBase;
+  if(periodosNuevos.length){
+    periodosNuevos.forEach(per=>{
+      saldoCuotas = saldoCuotas * (per.coef||1);
+      const pg = (pagos[pKey(per.year,per.mes)]||{})[socioId];
+      const pagado = parseFloat(pg?.monto||0);
+      saldoCuotas = saldoCuotas + ((per.cuota||0) - pagado);
+    });
+  }
+
+  return Math.max(0, Math.round(saldoCuotas)) + Math.round(planSaldo);
+}
+
+function showMsg(id,txt,tipo){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML=`<div class="alert alert-${tipo==='ok'?'ok':'err'}">${txt}</div>`;
+  setTimeout(()=>{if(el)el.innerHTML='';},4000);
+}
+
+// =========================================================
+// SIDEBAR IPIM — siempre visible
+// =========================================================
+function actualizarSidebarIPIM(){
+  const ul=ultimoPeriodo();
+  if(!ul){
+    document.getElementById('sb-mes').textContent='Sin datos';
+    document.getElementById('sb-datos').textContent='Cargá el primer IPIM';
+    document.getElementById('sb-cuota').textContent='';
+    return;
+  }
+  document.getElementById('sb-mes').textContent=pLabel(ul.year,ul.mes);
+  document.getElementById('sb-datos').textContent=`IPIM: ${fmtD(ul.valor,2)} | Coef: ${fmtD(ul.coef,4)}`;
+  document.getElementById('sb-cuota').textContent=`Cuota: $${fmt(ul.cuota)}`;
+}
+
+// =========================================================
+// MODAL IPIM
+// =========================================================
+function abrirModalIPIM(){
+  // Pre-completar con siguiente mes al último
+  const ul=ultimoPeriodo();
+  if(ul){
+    let y=ul.year, m=ul.mes+1;
+    if(m>12){m=1;y++;}
+    document.getElementById('m-year').value=y;
+    document.getElementById('m-mes').value=m;
+    document.getElementById('m-cuota').value=ul.cuota||'';
+  }
+  document.getElementById('m-ipim').value='';
+  document.getElementById('m-coef').value='';
+  document.getElementById('modal-msg').innerHTML='';
+  renderPeriodosLista();
+  document.getElementById('modal-ipim').classList.add('open');
+}
+function cerrarModalIPIM(){
+  document.getElementById('modal-ipim').classList.remove('open');
+}
+
+function previewCoef(){
+  const val=parseFloat(document.getElementById('m-ipim').value);
+  const ip=getIPIM();
+  const prev=ip.length?ip[ip.length-1].valor:null;
+  if(!val){ document.getElementById('m-coef').value=''; return; }
+  const coef=prev?val/prev:1;
+  document.getElementById('m-coef').value=fmtD(coef,6);
+}
+
+function guardarIPIM(){
+  const year=parseInt(document.getElementById('m-year').value);
+  const mes=parseInt(document.getElementById('m-mes').value);
+  const valor=parseFloat(document.getElementById('m-ipim').value);
+  const cuota=parseFloat(document.getElementById('m-cuota').value);
+  if(!valor||!cuota){ showMsg('modal-msg','Completá IPIM y cuota','err'); return; }
+  const ip=getIPIM();
+  const prev=ip.length?ip[ip.length-1].valor:null;
+  const coef=prev?valor/prev:1;
+  const pk=pKey(year,mes);
+  const idx=ip.findIndex(i=>pKey(i.year,i.mes)===pk);
+  if(idx>=0) ip[idx]={year,mes,valor,cuota,coef};
+  else ip.push({year,mes,valor,cuota,coef});
+  ip.sort((a,b)=>pKey(a.year,a.mes).localeCompare(pKey(b.year,b.mes)));
+  DB.set('ipim',ip);
+  actualizarSidebarIPIM();
+  renderPeriodosLista();
+  showMsg('modal-msg',`✅ ${pLabel(year,mes)} guardado. Coef: ${fmtD(coef,6)}`,'ok');
+  // Actualizar selects de informes/pagos
+  initSelectsPeriodo();
+  if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  if(document.getElementById('page-pagos').classList.contains('active')) renderPagos();
+}
+
+function renderPeriodosLista(){
+  const ip=getIPIM();
+  const el=document.getElementById('periodos-lista');
+  if(!ip.length){ el.innerHTML='<div style="padding:12px;color:#aaa;font-size:13px;text-align:center">Sin períodos cargados</div>'; return; }
+  const ul=ip[ip.length-1];
+  el.innerHTML=[...ip].reverse().map(i=>`
+    <div class="periodo-row ${pKey(i.year,i.mes)===pKey(ul.year,ul.mes)?'activo':''}">
+      <span>${pLabel(i.year,i.mes)}</span>
+      <span style="color:#aaa;font-size:12px">IPIM ${fmtD(i.valor,2)} | Coef ${fmtD(i.coef,4)} | $${fmt(i.cuota)}</span>
+      <button class="btn btn-danger btn-sm" onclick="eliminarPeriodo('${pKey(i.year,i.mes)}')">✕</button>
+    </div>`).join('');
+}
+
+function eliminarPeriodo(pk){
+  if(!confirm('¿Eliminar este período?')) return;
+  DB.set('ipim',getIPIM().filter(i=>pKey(i.year,i.mes)!==pk));
+  actualizarSidebarIPIM();
+  renderPeriodosLista();
+  initSelectsPeriodo();
+}
+
+// =========================================================
+// NAVEGACIÓN
+// =========================================================
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  // highlight: buscar nav-item que contenga showPage('name')
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+name+"'")&&
+       !n.getAttribute('onclick').includes('showSubTab')) n.classList.add('active');
+  });
+  if(name==='dashboard') renderDashboard();
+  if(name==='pagos')     renderPagos();
+  if(name==='socios')    {renderSocios(''); document.getElementById('socios-count').textContent=getSocios().length;}
+  if(name==='informes')  initInformes();
+  if(name==='config')    renderConfig();
+}
+
+function showSubTab(page,tab){
+  const map={socios:['lista','nuevo'],informes:['tesorero','deudores']};
+  map[page].forEach(t=>{ const el=document.getElementById(`${page}-${t}`); if(el)el.style.display='none'; });
+  document.getElementById(`${page}-${tab}`).style.display='block';
+  document.querySelectorAll(`#page-${page} .tab`).forEach((t,i)=>{
+    t.classList.toggle('active',map[page][i]===tab);
+  });
+}
+
+function initSelectsPeriodo(){
+  const ip=getIPIM();
+  const opts=ip.length
+    ? [...ip].reverse().map(i=>`<option value="${pKey(i.year,i.mes)}">${pLabel(i.year,i.mes)}</option>`).join('')
+    : '<option>Sin períodos</option>';
+  ['pagos-periodo','i1-periodo','i2-periodo','r-periodo'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML=opts;
+  });
+}
+
+// =========================================================
+// PLAN DE PAGOS
+// =========================================================
+// Deuda original al inicio del plan (Junio 2026), 12 cuotas
+// Contreras José Luis ya pagó → saldo 0
+const PLAN_PAGO = {
+  '25329692': { nombre:'Muñoz Gustavo',        deudaOriginal: 1447880.00,   pagado: 0 },
+  '14607700': { nombre:'De La Llana Mario',     deudaOriginal: 15000000.00,  pagado: 0 },
+  '23531807': { nombre:'Guardia Javier',        deudaOriginal: 2865974.25,   pagado: 0 },
+  '41659790': { nombre:'Jofre Guadalupe',       deudaOriginal: 2625044.57,   pagado: 0 },
+  '32872560': { nombre:'Palacios Samanta',      deudaOriginal: 4922611.62,   pagado: 0 },
+  '20482570': { nombre:'Contreras José Luis',   deudaOriginal: 3797155.82,   pagado: 3797155.82 }, // ya pagó
+};
+const PLAN_INICIO = '2026-06'; // Junio 2026
+const PLAN_CUOTAS = 12;
+
+function cuotaPlan(dni){
+  const p = PLAN_PAGO[dni];
+  if(!p) return 0;
+  return Math.round(p.deudaOriginal / PLAN_CUOTAS);
+}
+
+function saldoPlan(dni){
+  const p = PLAN_PAGO[dni];
+  if(!p) return 0;
+  // pagos registrados en la app desde junio 2026 en adelante en campo 'planPago'
+  const planesDB = DB.get('planes') || {};
+  const pagadoExtra = parseFloat(planesDB[dni]?.pagado || p.pagado);
+  return Math.max(0, p.deudaOriginal - pagadoExtra);
+}
+
+function renderPlanPago(){
+  const el = document.getElementById('dash-plan-pago');
+  if(!el) return;
+
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const planesDB = DB.get('planes') || {};
+
+  const totalOriginal = Object.values(PLAN_PAGO).reduce((a,p)=>a+p.deudaOriginal,0);
+  const totalSaldo = Object.keys(PLAN_PAGO).reduce((a,dni)=>a+saldoPlan(dni),0);
+  const totalCobrado = totalOriginal - totalSaldo;
+  const pct = Math.round(totalCobrado/totalOriginal*100);
+
+  // Generar cabecera de meses (12 desde junio 2026)
+  const colMeses = [];
+  let y=2026, m=6;
+  for(let i=0;i<12;i++){
+    colMeses.push({key:`${y}-${String(m).padStart(2,'0')}`, label:`${meses[m-1]} ${y}`});
+    m++; if(m>12){m=1;y++;}
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:20px;font-size:13px">
+        <span>Deuda original: <strong>$${fmt(totalOriginal)}</strong></span>
+        <span>Cobrado: <strong style="color:#1a7a45">$${fmt(totalCobrado)}</strong></span>
+        <span>Saldo: <strong style="color:#b03030">$${fmt(totalSaldo)}</strong></span>
+      </div>
+      <div style="font-size:12px;color:#888">${pct}% cobrado</div>
+    </div>
+    <div class="progress-bar" style="height:8px;margin-bottom:16px"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Socio</th>
+          <th>Deuda original</th>
+          <th>Cuota plan</th>
+          ${colMeses.map(cm=>`<th style="font-size:10px;white-space:nowrap">${cm.label}</th>`).join('')}
+          <th>Saldo</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.entries(PLAN_PAGO).map(([dni,p])=>{
+          const cuota = Math.round(p.deudaOriginal/PLAN_CUOTAS);
+          const saldo = saldoPlan(dni);
+          const pagos = planesDB[dni]?.meses || {};
+          const ya_pago_todo = saldo === 0;
+          return `<tr>
+            <td style="font-weight:500">${p.nombre}</td>
+            <td>$${fmt(p.deudaOriginal)}</td>
+            <td style="color:#1a3a8a;font-weight:600">$${fmt(cuota)}</td>
+            ${colMeses.map(cm=>{
+              const pagado = pagos[cm.key];
+              if(ya_pago_todo && !pagado) return `<td style="color:#aaa;text-align:center">—</td>`;
+              if(pagado) return `<td style="text-align:center"><span class="badge badge-verde">✓ $${fmt(pagado)}</span></td>`;
+              return `<td style="text-align:center">
+                <input type="number" placeholder="0" 
+                  style="width:80px;padding:3px 5px;border:1px solid #ddd;border-radius:4px;font-size:11px;text-align:right"
+                  id="plan-${dni}-${cm.key}"
+                  onchange="registrarPagoPlan('${dni}','${cm.key}',this.value)">
+              </td>`;
+            }).join('')}
+            <td style="font-weight:700;color:${saldo>0?'#b03030':'#1a7a45'}">$${fmt(saldo)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    </div>`;
+}
+
+function registrarPagoPlan(dni, mesKey, valor){
+  const planes = DB.get('planes') || {};
+  if(!planes[dni]) planes[dni] = { pagado: PLAN_PAGO[dni]?.pagado||0, meses:{} };
+  const monto = parseFloat(valor||0);
+  planes[dni].meses[mesKey] = monto;
+  // recalcular total pagado
+  planes[dni].pagado = (PLAN_PAGO[dni]?.pagado||0) + Object.values(planes[dni].meses).reduce((a,v)=>a+v,0);
+  DB.set('planes', planes);
+  renderPlanPago();
+}
+
+// =========================================================
+// DASHBOARD
+// =========================================================
+function renderDashboard(){
+  const socios=getSocios(), ip=getIPIM(), pagos=getPagos();
+  const ul=ultimoPeriodo();
+  document.getElementById('dash-sub').textContent = ul
+    ? `Período: ${pLabel(ul.year,ul.mes)} — Cuota: $${fmt(ul.cuota)} — IPIM: ${fmtD(ul.valor,2)} — Coef: ${fmtD(ul.coef,4)}`
+    : 'Sin período activo. Actualizá el IPIM primero.';
+
+  // Plan de pagos
+  renderPlanPago();
+
+  // Total deuda real de todos los socios
+  const totalDeuda = socios.reduce((a,s)=>a+calcDeudaTotal(s.id),0);
+  const deudoresCrit = socios.filter(s=>calcDeudaTotal(s.id)>cuota*2 && !PLAN_PAGO[s.dni]);
+  document.getElementById('dash-total-monto').textContent = '$'+fmt(totalDeuda);
+  document.getElementById('dash-total-count').textContent = deudoresCrit.length+' deudores críticos';
+
+
+  const pk=ul?pKey(ul.year,ul.mes):null;
+  const pm=pk?(pagos[pk]||{}):{};
+  const cuota=ul?.cuota||0;
+
+  const pagaron=socios.filter(s=>parseFloat(pm[s.id]?.monto||0)>=cuota*0.9);
+  const pendientesMes=socios.filter(s=>parseFloat(pm[s.id]?.monto||0)<cuota*0.9);
+  const totalCob=socios.reduce((a,s)=>a+parseFloat(pm[s.id]?.monto||0),0);
+  const pct=socios.length?Math.round(pagaron.length/socios.length*100):0;
+
+  document.getElementById('dash-metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Socios</div><div class="metric-val">${socios.length}</div></div>
+    <div class="metric"><div class="metric-label">Pagaron</div><div class="metric-val verde">${pagaron.length}</div>
+      <div class="metric-sub">${pct}% del padrón</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+    <div class="metric"><div class="metric-label">Sin pagar este mes</div><div class="metric-val ${pendientesMes.length?'amber':''}">${pendientesMes.length}</div></div>
+    <div class="metric"><div class="metric-label">Recaudado</div><div class="metric-val verde" style="font-size:20px">$${fmt(totalCob)}</div>
+      <div class="metric-sub">de $${fmt(socios.length*cuota)} esperado</div></div>`;
+
+  // Pendientes
+  const pEl=document.getElementById('dash-pendientes');
+  if(!pendientesMes.length){ pEl.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>Todos pagaron este mes</div>'; }
+  else { pEl.innerHTML=`<div class="scroll-y">${pendientesMes.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:13px">
+      <div><span style="font-weight:500">${s.nombre}</span>${s.estado?` ${estadoBadge(s.estado)}`:''}</div>
+      <span class="badge ${pm[s.id]?.monto?'badge-amber':'badge-rojo'}">${pm[s.id]?.monto?'Parcial $'+fmt(pm[s.id].monto):'Sin pago'}</span>
+    </div>`).join('')}</div>`; }
+
+  // Pagaron
+  const aEl=document.getElementById('dash-pagaron');
+  if(!pagaron.length){ aEl.innerHTML='<div class="empty-state"><div class="empty-icon">⏳</div>Aún sin pagos registrados</div>'; }
+  else { aEl.innerHTML=`<div class="scroll-y">${pagaron.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:13px">
+      <span style="font-weight:500">${s.nombre}</span>
+      <span class="badge badge-verde">$${fmt(pm[s.id]?.monto)}</span>
+    </div>`).join('')}</div>`; }
+
+  // Ranking
+  const ranking=socios.map(s=>({...s,deuda:calcDeudaTotal(s.id),pago:parseFloat(pm[s.id]?.monto||0)}))
+    .sort((a,b)=>b.deuda-a.deuda);
+  document.getElementById('dash-ranking').innerHTML=ranking.map((s,i)=>`
+    <tr>
+      <td style="color:#aaa;width:30px">${i+1}</td>
+      <td style="font-weight:500">${s.nombre}</td>
+      <td>${s.lote?`<span class="badge badge-gris">${s.lote}</span>`:'-'}</td>
+      <td style="font-weight:700;color:${s.deuda>0?'#b03030':'#1a7a45'}">$${fmt(s.deuda)}</td>
+      <td>${estadoBadge(s.estado)}</td>
+      <td>${s.pago?`<span class="badge badge-verde">$${fmt(s.pago)}</span>`:`<span class="badge badge-gris">—</span>`}</td>
+    </tr>`).join('');
+}
+
+// =========================================================
+// PAGOS
+// =========================================================
+function renderPagos(){
+  const ip=getIPIM();
+  const sel=document.getElementById('pagos-periodo');
+  if(!sel) return;
+
+  // Siempre rellenar el selector (para que refleje períodos nuevos)
+  const valorActual=sel.value;
+  sel.innerHTML=ip.length
+    ? [...ip].reverse().map(i=>`<option value="${pKey(i.year,i.mes)}">${pLabel(i.year,i.mes)} — $${fmt(i.cuota)}</option>`).join('')
+    : '<option>Sin períodos — actualizá el IPIM</option>';
+  // Restaurar selección o quedarse en el primero (más reciente)
+  if(valorActual && [...sel.options].some(o=>o.value===valorActual)){
+    sel.value=valorActual;
+  }
+
+  const pk=sel.value;
+  const periodo=ip.find(i=>pKey(i.year,i.mes)===pk);
+  const cuota=periodo?.cuota||0;
+  document.getElementById('pagos-sub').textContent=periodo
+    ? `Período: ${pLabel(periodo.year,periodo.mes)} — Cuota ideal: $${fmt(cuota)} — IPIM: ${fmtD(periodo.valor,2)} — Coef: ${fmtD(periodo.coef,4)}`
+    : 'Seleccioná un período';
+
+  const socios=getSocios();
+  const pagos=getPagos();
+  const pm=pagos[pk]||{};
+  const q=(document.getElementById('pagos-search')?.value||'').toLowerCase();
+  const lista=q?socios.filter(s=>s.nombre.toLowerCase().includes(q)||s.dni.includes(q)):socios;
+
+  const tbody=document.getElementById('pagos-tbody');
+  if(!lista.length){
+    tbody.innerHTML=`<tr><td colspan="10" class="empty-state">Sin socios. Importalos en Configuración.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML=lista.map(s=>{
+    const monto=pm[s.id]?.monto??'';
+    const montoPlan=pm[s.id]?.montoPlan??'';
+    const comprobante=pm[s.id]?.comprobante??'';
+    const notas=pm[s.id]?.notas??'';
+    const m=parseFloat(monto||0);
+    const mp=parseFloat(montoPlan||0);
+    const dif=cuota-m;
+    const tienePlan=!!PLAN_PAGO[s.dni];
+    const cuotaPlanMes=tienePlan?cuotaPlan(s.dni):0;
+    const totalAPagar=cuota+(tienePlan?cuotaPlanMes:0);
+    const totalPagado=m+mp;
+    const badge=!monto?`<span class="badge badge-gris">Sin datos</span>`
+      :m>=cuota*0.9?`<span class="badge badge-verde">✓ Cuota</span>`
+      :m>0?`<span class="badge badge-amber">Parcial</span>`
+      :`<span class="badge badge-rojo">Sin pago</span>`;
+    const difStyle=dif>0?'color:#b03030':dif<0?'color:#1a7a45':'color:#aaa';
+    return `<tr style="${tienePlan?'background:#fffdf0':''}">
+      <td style="font-weight:500">${s.nombre}</td>
+      <td>${s.lote?`<span class="badge badge-gris">${s.lote}</span>`:'-'}</td>
+      <td>${estadoBadge(s.estado)}</td>
+      <td style="color:#aaa">$${fmt(cuota)}</td>
+      <td><input class="pago-input" type="number" id="p-${s.id}" value="${monto}" placeholder="0" oninput="refreshBadge('${s.id}',${cuota})"></td>
+      <td style="text-align:center">${tienePlan?`
+        <div style="font-size:10px;color:#7a6000;margin-bottom:2px">Plan: $${fmt(cuotaPlanMes)}</div>
+        <input class="pago-input" type="number" id="pp-${s.id}" value="${montoPlan}" placeholder="0" style="width:90px;border-color:#e8c840">
+      `:'<span style="color:#ddd">—</span>'}</td>
+      <td style="${difStyle};font-weight:600" id="dif-${s.id}">$${fmt(dif)}</td>
+      <td id="badge-${s.id}">${badge}</td>
+      <td><input type="text" style="width:100px;padding:4px 7px;border:1px solid #e8e8e8;border-radius:4px;font-size:11px" id="cmp-${s.id}" value="${comprobante}" placeholder="Nº AFIP..."></td>
+      <td><input type="text" style="width:90px;padding:4px 7px;border:1px solid #e8e8e8;border-radius:4px;font-size:11px" id="n-${s.id}" value="${notas}" placeholder="Obs..."></td>
+    </tr>`;
+  }).join('');
+}
+
+function refreshBadge(id,cuota){
+  const m=parseFloat(document.getElementById('p-'+id)?.value||0);
+  const dif=cuota-m;
+  const bd=document.getElementById('badge-'+id);
+  const dd=document.getElementById('dif-'+id);
+  if(bd){
+    if(!document.getElementById('p-'+id).value) bd.innerHTML='<span class="badge badge-gris">Sin datos</span>';
+    else if(m>=cuota*0.9) bd.innerHTML='<span class="badge badge-verde">Pagado</span>';
+    else if(m>0) bd.innerHTML='<span class="badge badge-amber">Parcial</span>';
+    else bd.innerHTML='<span class="badge badge-rojo">Sin pago</span>';
+  }
+  if(dd){ dd.textContent='$'+fmt(dif); dd.style.color=dif>0?'#b03030':dif<0?'#1a7a45':'#aaa'; }
+}
+
+function marcarTodosPagado(){
+  const ip=getIPIM();
+  const pk=document.getElementById('pagos-periodo').value;
+  const per=ip.find(i=>pKey(i.year,i.mes)===pk);
+  const cuota=per?.cuota||0;
+  getSocios().forEach(s=>{
+    const el=document.getElementById('p-'+s.id);
+    if(el){ el.value=cuota; refreshBadge(s.id,cuota); }
+  });
+}
+
+function guardarPagos(){
+  const pk=document.getElementById('pagos-periodo').value;
+  const socios=getSocios(), pagos=getPagos();
+  if(!pagos[pk]) pagos[pk]={};
+  let cnt=0;
+  socios.forEach(s=>{
+    const el=document.getElementById('p-'+s.id);
+    if(el){
+      const montoPlan=document.getElementById('pp-'+s.id)?.value||'';
+      const comprobante=document.getElementById('cmp-'+s.id)?.value||'';
+      const notas=document.getElementById('n-'+s.id)?.value||'';
+      pagos[pk][s.id]={
+        monto: el.value||'',
+        montoPlan,
+        comprobante,
+        notas,
+        fecha: new Date().toLocaleDateString('es-AR')
+      };
+      // Si pagó cuota del plan, registrarlo en planes también
+      if(montoPlan && parseFloat(montoPlan)>0 && PLAN_PAGO[s.dni]){
+        const planes=DB.get('planes')||{};
+        if(!planes[s.dni]) planes[s.dni]={pagado:PLAN_PAGO[s.dni]?.pagado||0,meses:{}};
+        planes[s.dni].meses[pk]=parseFloat(montoPlan);
+        planes[s.dni].pagado=(PLAN_PAGO[s.dni]?.pagado||0)+
+          Object.values(planes[s.dni].meses).reduce((a,v)=>a+parseFloat(v||0),0);
+        DB.set('planes',planes);
+      }
+      cnt++;
+    }
+  });
+  DB.set('pagos',pagos);
+  showMsg('pagos-msg',`✅ ${cnt} registros guardados — ${document.getElementById('pagos-periodo').selectedOptions[0]?.text}`,'ok');
+  if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  // Backup automático
+  autoBackup();
+}
+
+function autoBackup(){
+  try{
+    const data={socios:getSocios(),ipim:getIPIM(),pagos:getPagos(),planes:DB.get('planes')||{},fecha:new Date().toISOString()};
+    const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`cacique_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }catch(e){ console.warn('Backup falló:',e); }
+}
+
+// =========================================================
+// SOCIOS
+// =========================================================
+function renderSocios(q=''){
+  const socios=getSocios();
+  const filtroE=document.getElementById('filtro-estado')?.value||'';
+  let lista=socios;
+  if(q) lista=lista.filter(s=>s.nombre.toLowerCase().includes(q.toLowerCase())||s.dni.includes(q));
+  if(filtroE) lista=lista.filter(s=>s.estado===filtroE);
+  const tbody=document.getElementById('socios-tbody');
+  if(!lista.length){ tbody.innerHTML=`<tr><td colspan="8" class="empty-state">Sin socios</td></tr>`; return; }
+  tbody.innerHTML=lista.map((s,i)=>`
+    <tr>
+      <td style="color:#aaa">${i+1}</td>
+      <td style="font-weight:500">${s.nombre}</td>
+      <td style="color:#888">${s.dni}</td>
+      <td>${s.tel||'-'}</td>
+      <td style="font-size:12px;color:#4a7ab5">${s.email||'-'}</td>
+      <td>${s.lote?`<span class="badge badge-gris">${s.lote}</span>`:'-'}</td>
+      <td>${estadoBadge(s.estado)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="editarSocio('${s.id}')" style="padding:3px 8px">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarSocio('${s.id}')">✕</button>
+      </td>
+    </tr>`).join('');
+}
+
+function guardarSocio(){
+  const nombre=document.getElementById('ns-nombre').value.trim();
+  const dni=document.getElementById('ns-dni').value.trim();
+  if(!nombre||!dni){ showMsg('ns-msg','Nombre y DNI son obligatorios','err'); return; }
+  const editId=document.getElementById('ns-edit-id').value;
+  const socios=getSocios();
+  const datos={
+    nombre,dni,
+    tel:document.getElementById('ns-tel').value,
+    email:document.getElementById('ns-email').value,
+    dir:document.getElementById('ns-dir').value,
+    lote:document.getElementById('ns-lote').value,
+    fecha:document.getElementById('ns-fecha').value,
+    estado:document.getElementById('ns-estado').value,
+    obs:document.getElementById('ns-obs').value,
+    saldoBase:parseFloat(document.getElementById('ns-saldo').value||0)
+  };
+  if(editId){
+    // Edición
+    const idx=socios.findIndex(s=>s.id===editId);
+    if(idx>=0){ socios[idx]={...socios[idx],...datos}; }
+    DB.set('socios',socios);
+    showMsg('ns-msg','✅ Socio actualizado','ok');
+  } else {
+    // Nuevo
+    if(socios.find(s=>s.dni===dni)){ showMsg('ns-msg','DNI ya registrado','err'); return; }
+    socios.push({id:Date.now().toString()+Math.random().toString(36).slice(2),...datos});
+    DB.set('socios',socios);
+    showMsg('ns-msg','✅ Socio guardado','ok');
+  }
+  limpiarNS();
+  renderSocios('');
+}
+function limpiarNS(){
+  ['ns-nombre','ns-dni','ns-tel','ns-email','ns-dir','ns-lote','ns-fecha','ns-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ns-estado').value='';
+  document.getElementById('ns-saldo').value='';
+  document.getElementById('ns-edit-id').value='';
+  document.querySelector('#socios-nuevo .card-title').textContent='Nuevo socio';
+}
+
+function editarSocio(id){
+  const s=getSocios().find(x=>x.id===id);
+  if(!s) return;
+  showSubTab('socios','nuevo');
+  document.getElementById('ns-nombre').value=s.nombre||'';
+  document.getElementById('ns-dni').value=s.dni||'';
+  document.getElementById('ns-tel').value=s.tel||'';
+  document.getElementById('ns-email').value=s.email||'';
+  document.getElementById('ns-dir').value=s.dir||'';
+  document.getElementById('ns-lote').value=s.lote||'';
+  document.getElementById('ns-fecha').value=s.fecha||'';
+  document.getElementById('ns-estado').value=s.estado||'';
+  document.getElementById('ns-obs').value=s.obs||'';
+  document.getElementById('ns-saldo').value=s.saldoBase||0;
+  document.getElementById('ns-edit-id').value=id;
+  document.querySelector('#socios-nuevo .card-title').textContent='Editar socio';
+  document.getElementById('ns-nombre').focus();
+}
+function eliminarSocio(id){
+  if(!confirm('¿Eliminar este socio?')) return;
+  DB.set('socios',getSocios().filter(s=>s.id!==id));
+  renderSocios('');
+  document.getElementById('socios-count').textContent=getSocios().length;
+}
+
+// =========================================================
+// INFORMES
+// =========================================================
+function initInformes(){
+  const ip=getIPIM(), socios=getSocios();
+  const opts=ip.length?[...ip].reverse().map(i=>`<option value="${pKey(i.year,i.mes)}">${pLabel(i.year,i.mes)}</option>`).join(''):'<option value="">Sin períodos</option>';
+  const el=document.getElementById('i1-periodo'); if(el) el.innerHTML=opts;
+  const s2=document.getElementById('i2-socio');
+  if(s2) s2.innerHTML='<option value="">Todos los socios</option>'+socios.map(s=>`<option value="${s.id}">${s.nombre}</option>`).join('');
+}
+
+function genDeudores(){
+  const ip=getIPIM(), socios=getSocios(), pagos=getPagos();
+  const pk=document.getElementById('i1-periodo').value;
+  const filtro=document.getElementById('i1-filtro').value;
+  const orden=document.getElementById('i1-orden').value;
+  const per=ip.find(i=>pKey(i.year,i.mes)===pk);
+  const cuota=per?.cuota||0;
+  const pm=pagos[pk]||{};
+
+  let lista=socios.map(s=>({
+    ...s,
+    deuda:calcDeudaTotal(s.id),
+    pago:parseFloat(pm[s.id]?.monto||0)
+  }));
+  if(filtro==='deuda') lista=lista.filter(s=>s.deuda>0||s.pago<cuota*0.9);
+  if(filtro==='aldia') lista=lista.filter(s=>s.deuda<=0&&s.pago>=cuota*0.9);
+  if(orden==='deuda') lista.sort((a,b)=>b.deuda-a.deuda);
+  else lista.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+
+  const total=lista.reduce((a,s)=>a+s.deuda,0);
+  document.getElementById('i1-resultado').innerHTML=`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <strong>Período: ${per?pLabel(per.year,per.mes):'—'} | ${lista.length} socios</strong>
+        <span style="font-size:13px">Deuda total: <strong style="color:#b03030">$${fmt(total)}</strong></span>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Socio</th><th>DNI</th><th>Tel</th><th>Lote</th><th>Estado legal</th><th>Pago mes</th><th>Deuda histórica</th></tr></thead>
+        <tbody>${lista.map((s,i)=>`<tr>
+          <td style="color:#aaa">${i+1}</td>
+          <td style="font-weight:500">${s.nombre}</td>
+          <td>${s.dni}</td><td>${s.tel||'-'}</td>
+          <td>${s.lote?`<span class="badge badge-gris">${s.lote}</span>`:'-'}</td>
+          <td>${estadoBadge(s.estado)}</td>
+          <td>$${fmt(s.pago)}</td>
+          <td style="font-weight:700;color:${s.deuda>0?'#b03030':'#1a7a45'}">$${fmt(s.deuda)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+}
+
+function genEstado(){
+  const ip=getIPIM(), pagos=getPagos(), socios=getSocios();
+  const sid=document.getElementById('i2-socio').value;
+  const lista=sid?socios.filter(s=>s.id===sid):socios;
+  if(!lista.length){ document.getElementById('i2-resultado').innerHTML='<p style="color:#aaa;padding:12px">Sin socios registrados.</p>'; return; }
+
+  const CORTE = '2026-06';
+  const html=lista.map(s=>{
+    const saldoBase = parseFloat(s.saldoBase||0);
+    let saldoAcum = saldoBase;
+    const periodosNuevos = ip.filter(p=>pKey(p.year,p.mes)>CORTE);
+    const filas=periodosNuevos.map(per=>{
+      const pg=(pagos[pKey(per.year,per.mes)]||{})[s.id];
+      const pagado=parseFloat(pg?.monto||0);
+      const cuota=per.cuota||0;
+      const saldoActualizado = saldoAcum * (per.coef||1);
+      const dif = cuota - pagado;
+      saldoAcum = saldoActualizado + dif;
+      if(cuota===0&&pagado===0) return null;
+      return `<tr>
+        <td>${pLabel(per.year,per.mes)}</td>
+        <td style="text-align:right;color:#888">×${fmtD(per.coef,4)}</td>
+        <td style="text-align:right">$${fmt(cuota)}</td>
+        <td style="text-align:right;color:${pagado>=cuota?'#1a7a45':'#b03030'}">$${fmt(pagado)}</td>
+        <td style="text-align:right;color:${dif>0?'#b03030':'#1a7a45'}">$${fmt(dif)}</td>
+        <td style="text-align:right;font-weight:700;color:${saldoAcum>0?'#b03030':'#1a7a45'}">$${fmt(Math.max(0,saldoAcum))}</td>
+        <td style="font-size:11px;color:#1a3a8a;font-weight:500">${pg?.comprobante?`📄 ${pg.comprobante}`:''}</td>
+        <td style="font-size:11px;color:#aaa">${pg?.notas||''}</td>
+      </tr>`;
+    }).filter(Boolean).join('');
+    return `<div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:700">${s.nombre}</div>
+          <div style="font-size:12px;color:#aaa">DNI: ${s.dni} | Lote: ${s.lote||'-'} | Tel: ${s.tel||'-'}</div>
+          ${s.estado?`<div style="margin-top:4px">${estadoBadge(s.estado)}</div>`:''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#aaa">Saldo al 30/06/2026 (base)</div>
+          <div style="font-size:16px;font-weight:600;color:${saldoBase>0?'#b03030':'#1a7a45'}">$${fmt(saldoBase)}</div>
+          ${PLAN_PAGO[s.dni]?`
+          <div style="font-size:11px;color:#aaa;margin-top:4px">Plan de pago pendiente</div>
+          <div style="font-size:14px;font-weight:600;color:#7a6000">$${fmt(saldoPlan(s.dni))}</div>`:''}
+          <div style="font-size:11px;color:#aaa;margin-top:4px">Deuda total</div>
+          <div style="font-size:22px;font-weight:700;color:${(saldoAcum+( PLAN_PAGO[s.dni]?saldoPlan(s.dni):0))>0?'#b03030':'#1a7a45'}">$${fmt(Math.max(0,saldoAcum)+(PLAN_PAGO[s.dni]?saldoPlan(s.dni):0))}</div>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Período</th><th style="text-align:right">Coef.</th><th style="text-align:right">Cuota</th><th style="text-align:right">Pagado</th><th style="text-align:right">Diferencia</th><th style="text-align:right">Saldo acum.</th><th>Comprobante</th><th>Notas</th></tr></thead>
+        <tbody>${filas||'<tr><td colspan="7" style="text-align:center;color:#aaa;padding:12px">Sin movimientos registrados</td></tr>'}</tbody>
+      </table></div>
+      ${(()=>{
+        const plan = PLAN_PAGO[s.dni];
+        if(!plan) return '';
+        const cuota = Math.round(plan.deudaOriginal/PLAN_CUOTAS);
+        const saldo = saldoPlan(s.dni);
+        const planesDB = DB.get('planes')||{};
+        const mesesPagados = planesDB[s.dni]?.meses||{};
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const colMeses = [];
+        let y=2026, m=6;
+        for(let i=0;i<12;i++){
+          colMeses.push({key:`${y}-${String(m).padStart(2,'0')}`,label:`${meses[m-1]} ${y}`});
+          m++; if(m>12){m=1;y++;}
+        }
+        return `
+        <div style="margin-top:16px;border-top:2px dashed #e0e0e0;padding-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;color:#1a3a8a">📋 Plan de pago — 12 cuotas</div>
+            <div style="font-size:13px">
+              Deuda original: <strong>$${fmt(plan.deudaOriginal)}</strong> &nbsp;|&nbsp;
+              Cuota mensual: <strong style="color:#1a3a8a">$${fmt(cuota)}</strong> &nbsp;|&nbsp;
+              Saldo: <strong style="color:${saldo>0?'#b03030':'#1a7a45'}">$${fmt(saldo)}</strong>
+            </div>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr>${colMeses.map(cm=>`<th style="font-size:10px;text-align:center">${cm.label}</th>`).join('')}</tr></thead>
+            <tbody><tr>${colMeses.map(cm=>{
+              const p = mesesPagados[cm.key];
+              if(saldo===0 && !p) return `<td style="text-align:center;color:#aaa;font-size:11px">—</td>`;
+              if(p) return `<td style="text-align:center"><span class="badge badge-verde" style="font-size:10px">✓ $${fmt(p)}</span></td>`;
+              return `<td style="text-align:center"><span class="badge badge-amber" style="font-size:10px">$${fmt(cuota)}</span></td>`;
+            }).join('')}</tr></tbody>
+          </table></div>
+        </div>`;
+      })()}
+    </div>`;
+  }).join('');
+  document.getElementById('i2-resultado').innerHTML=html;
+}
+
+function genTesorero(){
+  const socios=getSocios(), ip=getIPIM(), pagos=getPagos();
+  const ul=ultimoPeriodo();
+  const nombre='___________________';
+  const cargo='Tesorero';
+  const hoy=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
+  const mesActivo=ul?pLabel(ul.year,ul.mes):'—';
+  const cuota=ul?.cuota||0;
+  const pk=ul?pKey(ul.year,ul.mes):null;
+  const pm=pk?(pagos[pk]||{}):{};
+
+  // Recaudación del mes
+  const totalCobrado=socios.reduce((a,s)=>a+parseFloat(pm[s.id]?.monto||0),0);
+  const totalEsperado=socios.length*cuota;
+  const pctCob=totalEsperado?Math.round(totalCobrado/totalEsperado*100):0;
+  const pagaron=socios.filter(s=>parseFloat(pm[s.id]?.monto||0)>=cuota*0.9).length;
+
+  // Deuda total actualizada
+  const deudaTotal=socios.reduce((a,s)=>a+calcDeudaTotal(s.id),0);
+
+  // Plan de pagos
+  const planesDB=DB.get('planes')||{};
+  const sociosConPlan=Object.keys(PLAN_PAGO).length;
+  const saldoPlanTotal=Object.keys(PLAN_PAGO).reduce((a,dni)=>a+saldoPlan(dni),0);
+
+  // Deudores críticos: saldo > cuota*2 (equivale a 2+ cuotas atrasadas)
+  const deudoresCriticos=socios.filter(s=>{
+    const d=calcDeudaTotal(s.id);
+    return d>cuota*2 && !PLAN_PAGO[s.dni]; // excluir los que ya tienen plan
+  });
+  const deudaCritica=deudoresCriticos.reduce((a,s)=>a+calcDeudaTotal(s.id),0);
+
+  // Semáforo
+  const alDia=socios.filter(s=>calcDeudaTotal(s.id)<=cuota).length;
+  const enPlan=sociosConPlan;
+  const enMora=deudoresCriticos.length;
+
+  document.getElementById('tes-resultado').innerHTML=`
+  <div style="max-width:680px;margin:0 auto;font-family:-apple-system,sans-serif" id="informe-pdf">
+    <!-- Membrete -->
+    <div style="text-align:center;border-bottom:3px solid #1a1a1a;padding-bottom:16px;margin-bottom:24px">
+      <div style="font-size:11px;letter-spacing:3px;color:#888;text-transform:uppercase;margin-bottom:6px">Cooperativa de Vivienda</div>
+      <div style="font-size:28px;font-weight:800;color:#1a1a1a">Mutual del Cacique</div>
+      <div style="font-size:13px;color:#666;margin-top:6px">Informe de gestión — ${mesActivo}</div>
+      <div style="font-size:12px;color:#aaa;margin-top:2px">${hoy}</div>
+    </div>
+
+    <!-- 4 indicadores grandes clickeables -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+      <div style="background:#f0faf5;border:2px solid #4caf80;border-radius:12px;padding:20px;cursor:pointer" onclick="toggleDetalle('det-recaudacion')">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1a7a45;margin-bottom:8px">💰 Recaudación del mes <span style="float:right;font-size:14px">▾</span></div>
+        <div style="font-size:32px;font-weight:800;color:#1a7a45">$${fmt(totalCobrado)}</div>
+        <div style="font-size:13px;color:#666;margin-top:6px">${pctCob}% del padrón · ${pagaron} de ${socios.length} socios</div>
+        <div style="height:6px;background:#c8eedd;border-radius:3px;margin-top:10px;overflow:hidden">
+          <div style="height:100%;width:${pctCob}%;background:#1a7a45;border-radius:3px"></div>
+        </div>
+        <div id="det-recaudacion" style="display:none;margin-top:12px;border-top:1px solid #c8eedd;padding-top:10px;font-size:12px">
+          ${pagaron>0?socios.filter(s=>parseFloat(pm[s.id]?.monto||0)>=cuota*0.9).map(s=>`
+            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #e8f5ee">
+              <span>${s.nombre}</span><span style="color:#1a7a45;font-weight:600">$${fmt(pm[s.id]?.monto)}</span>
+            </div>`).join(''):'<div style="color:#aaa;padding:8px 0">Sin pagos registrados aún</div>'}
+        </div>
+      </div>
+      <div style="background:#fef0f0;border:2px solid #e88080;border-radius:12px;padding:20px;cursor:pointer" onclick="toggleDetalle('det-deuda')">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#b03030;margin-bottom:8px">📋 Deuda total actualizada <span style="float:right;font-size:14px">▾</span></div>
+        <div style="font-size:32px;font-weight:800;color:#b03030">$${fmt(deudaTotal)}</div>
+        <div style="font-size:13px;color:#666;margin-top:6px">Saldos al 30/06/2026 + nuevos meses</div>
+        <div id="det-deuda" style="display:none;margin-top:12px;border-top:1px solid #f0c0c0;padding-top:10px;font-size:12px">
+          ${socios.filter(s=>calcDeudaTotal(s.id)>0).sort((a,b)=>calcDeudaTotal(b.id)-calcDeudaTotal(a.id)).map(s=>`
+            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #fde8e8">
+              <span>${s.nombre} <span style="color:#aaa">${s.lote||''}</span></span>
+              <span style="color:#b03030;font-weight:600">$${fmt(calcDeudaTotal(s.id))}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div style="background:#fdf8e8;border:2px solid #e8c840;border-radius:12px;padding:20px;cursor:pointer" onclick="toggleDetalle('det-plan')">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#7a6000;margin-bottom:8px">🤝 Plan de pagos activo <span style="float:right;font-size:14px">▾</span></div>
+        <div style="font-size:32px;font-weight:800;color:#7a6000">$${fmt(saldoPlanTotal)}</div>
+        <div style="font-size:13px;color:#666;margin-top:6px">${enPlan} socios · ${PLAN_CUOTAS} cuotas desde Jun 2026</div>
+        <div id="det-plan" style="display:none;margin-top:12px;border-top:1px solid #e8d080;padding-top:10px;font-size:12px">
+          ${Object.entries(PLAN_PAGO).map(([dni,p])=>`
+            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #fdf3e0">
+              <span>${p.nombre}</span>
+              <span style="color:#7a6000;font-weight:600">$${fmt(saldoPlan(dni))} <span style="color:#aaa;font-weight:400">/ $${fmt(p.deudaOriginal)}</span></span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div style="background:#fef0f0;border:2px solid #cc4040;border-radius:12px;padding:20px;cursor:pointer" onclick="toggleDetalle('det-mora')">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#8b0000;margin-bottom:8px">🚨 Deudores críticos <span style="float:right;font-size:14px">▾</span></div>
+        <div style="font-size:32px;font-weight:800;color:#8b0000">${enMora} socios</div>
+        <div style="font-size:13px;color:#666;margin-top:6px">Deuda: $${fmt(deudaCritica)} · 2+ cuotas impagas</div>
+        <div id="det-mora" style="display:none;margin-top:12px;border-top:1px solid #f09090;padding-top:10px;font-size:12px">
+          ${deudoresCriticos.sort((a,b)=>calcDeudaTotal(b.id)-calcDeudaTotal(a.id)).map(s=>`
+            <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #fde8e8">
+              <span>${s.nombre} ${s.estado?`<span style="background:#fce4e4;color:#8b0000;padding:1px 5px;border-radius:6px;font-size:10px">${s.estado}</span>`:''}</span>
+              <span style="color:#8b0000;font-weight:700">$${fmt(calcDeudaTotal(s.id))}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Semáforo -->
+    <div style="background:#f7f7f7;border-radius:12px;padding:20px;margin-bottom:24px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:14px">Estado del padrón</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+        <div style="background:#fff;border-radius:8px;padding:16px;border:1px solid #d0eedd">
+          <div style="font-size:36px;font-weight:800;color:#1a7a45">${alDia}</div>
+          <div style="font-size:12px;color:#666;margin-top:4px">✅ Al día</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:16px;border:1px solid #e8d080">
+          <div style="font-size:36px;font-weight:800;color:#7a6000">${enPlan}</div>
+          <div style="font-size:12px;color:#666;margin-top:4px">⚠️ Plan de pago</div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:16px;border:1px solid #f09090">
+          <div style="font-size:36px;font-weight:800;color:#8b0000">${enMora}</div>
+          <div style="font-size:12px;color:#666;margin-top:4px">🚨 En mora</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deudores críticos detalle -->
+    ${enMora>0?`
+    <div style="margin-bottom:24px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">Detalle deudores críticos</div>
+      ${deudoresCriticos.sort((a,b)=>calcDeudaTotal(b.id)-calcDeudaTotal(a.id)).map(s=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fff;border:1px solid #f0d0d0;border-radius:8px;margin-bottom:6px">
+          <div>
+            <span style="font-weight:600">${s.nombre}</span>
+            <span style="font-size:11px;color:#aaa;margin-left:8px">Lote ${s.lote||'-'}</span>
+            ${s.estado?`<span style="margin-left:8px;background:#fce4e4;color:#8b0000;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600">${s.estado}</span>`:''}
+          </div>
+          <div style="font-weight:800;color:#b03030;font-size:16px">$${fmt(calcDeudaTotal(s.id))}</div>
+        </div>`).join('')}
+    </div>`:''}
+
+    <!-- Firma -->
+    <div style="border-top:2px solid #eee;padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:8px">
+      <div style="text-align:center">
+        <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px">
+          <div style="font-weight:700">${nombre}</div>
+          <div style="font-size:12px;color:#888">${cargo}</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="border-top:1px solid #333;padding-top:8px;margin-top:40px">
+          <div style="font-weight:700">___________________</div>
+          <div style="font-size:12px;color:#888">Presidente</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+
+
+
+// =========================================================
+// CONFIG
+// =========================================================
+function renderConfig(){
+  const s=getSocios(), ip=getIPIM(), p=getPagos();
+  document.getElementById('cfg-stats').innerHTML=`
+    <strong>${s.length}</strong> socios &nbsp;|&nbsp; <strong>${ip.length}</strong> períodos IPIM &nbsp;|&nbsp; <strong>${Object.keys(p).length}</strong> períodos con pagos`;
+}
+
+function cargarSociosExcel(){
+  if(getSocios().length && !confirm('Ya hay socios cargados. ¿Agregar los del Excel sin borrar los actuales?')) return;
+
+  // Saldos históricos al 30/06/2026 extraídos del Excel
+  const SALDOS={"27757250":0,"30312193":235396,"18107635":55000,"16998590":55000,"20545776":0,"32532316":55000,"12044078":3520446.31,"20335947":55000,"14607700":55000,"14607700B":55000,"13292202":55000,"23531807":55000,"18447864":0,"18447864B":0,"14065439":13054679.03,"41659790":55000,"29088802":55000,"34237148":1599437.02,"36653079":3099437.02,"12783153":55000,"12783153B":55000,"27432869":12474207.23,"36341112":55000,"25782130":362290.61,"28599020":0,"20525784":0,"8140615":165000,"22559679":55000,"23713151":0,"11115975":0,"23435769":0,"22569896":55000,"29574581":22714.61,"25329692":0,"23340560":17831937.53,"32872560":0,"26444044":165000,"26527783":0,"11902232":0,"17800055":55000,"23435824":0,"33705405":55000,"24447781":0,"33275081":0,"15063276":3474425.5,"20113473":55000,"23267669":55000,"93943564":55000,"20335651":2387933.31,"27213956":2470826.81,"27213956B":2525826.81,"26781144":0,"20482570":55000};
+
+  const demo=[
+    ['Aguirre Walter Javier','27757250','2617042019','javinaty99@gmail.com','Ocoyunta 7664 - Colonia Segovia','B-14',''],
+    ['Antequera Gustavo Daniel','30312193','2613015894','gustavodanielantequera@hotmail.com','Ceferino Namuncura 1121 - Lujan','A-06',''],
+    ['Bevilacqua Mario Rubén','18107635','2613056561','marube125@gmail.com','Corrientes 114 - Maipú','B-05',''],
+    ['Boasso Rubén Ricardo','16998590','2613427712','rubenboasso1@gmail.com','Thiele 150 - Gral.Gutierrez','A-07',''],
+    ['Bustos Bibiana Beatriz','20545776','2614062316','mendo5511@gmail.com','J.P.Otero 233 - Gral Gutierrez','B-02',''],
+    ['Contreras José Luis','20482570','2613009903','joseluiscontreras481@gmail.com','Lencinas 133 - Mayor Drummond','A-24','Plan de Pago'],
+    ['Contreras Raúl Humberto','12044078','2615361735','','Francia 1640 - Godoy Cruz','A-05','CD'],
+    ['Cotela Enrique Alberto','20335947','2616102923','melinanahircotela@gmail.com','9 de Julio 387 - Luzuriaga','B-11',''],
+    ['De La Llana Mario (Lote 1)','14607700','2612500458','delallanamario@yahoo.com.ar','Las Heras 683 - Godoy Cruz','A-25',''],
+    ['De La Llana Mario (Lote 2)','14607700B','2612500458','delallanamario@yahoo.com.ar','Las Heras 683 - Godoy Cruz','A-26',''],
+    ['Díaz Mario Hector','13292202','2616369919','hectormariodiaz53@gmail.com','Rep de Siria 3082 - Luzuriaga','B-17',''],
+    ['Guardia Rodolfo Alejandro (Lote 1)','18447864','2614542112','','Berutti 1168 - Luzuriaga','A-28',''],
+    ['Rejas Laura','23435824','','laura_20_74@hotmail.com','','A-29',''],
+    ['Guardia Javier Hernan','23531807','2616300617','guardiajavier486@gmail.com','Eulogia Saez 16 - Maipú','A-04','Plan de Pago'],
+    ['Huidobro Horacio','14065439','2613013817','horaciohuidobro@gmail.com','Godoy Cruz','A-14','Edicto'],
+    ['Jofre Guadalupe','41659790','2612558323','jofregonzalezguadalupe@gmail.com','San Martin Sur 548','A-09','Plan de Pago'],
+    ['Lombardo Angel Darío','34237148','2616437712','cocaso2314@gmail.com','J.B.Justo 290 Maipu','A-19','Escribano'],
+    ['Lombardo Natacha','36653079','2616907606','','J.B.Justo 291 Maipu','B-23','Escribano'],
+    ['Lombardo Walter Rubén (Lote 1)','12783153','2613606812','lombardowalter@hotmail.com','20 de Junio 1443 - Maipú','B-19',''],
+    ['Lombardo Walter Rubén (Lote 2)','12783153B','2613606812','lombardowalter@hotmail.com','20 de Junio 1443 - Maipú','B-20',''],
+    ['Lorca Sergio','27432869','','','Maipú','A-22','Edicto'],
+    ['Loyola Marcelo','29088802','2615439203','loyolamarcelo926@gmail.com','Expedicionarios Mendocinos 1993','A-13',''],
+    ['Lucero Lucas Hernán','36341112','2616904040','lucero.lucas@outlook.com','San Luis 976 - Gral.Gutierrez','B-10',''],
+    ['Mairam Alfredo','25782130','26120700075','','B° Tropero Sosa - Coquimbito','A-15',''],
+    ['Martinez Walter Sebastian','28599020','2616772388','waltersebas34@gmail.com','Tropero Sosa 3057 - Coquimbito','A-01',''],
+    ['Medina Diego Valentín','20525784','2612066498','valen131168@hotmail.com','Dique Tulumaya 2005 - Godoy Cruz','B-13',''],
+    ['Melatini Hugo Armando','8140615','4975736','melatinihugo@gmail.com','Colon 1226 - Maipu','B-08',''],
+    ['Mendez Miguel Alejandro','22559679','2612165529','miguealemen@gmail.com','Berutti 1517 - Luzuriaga','B-07',''],
+    ['Mercado Cristian Ariel','23713151','2615742585','cristianmercado2003@hotmail.com','Volponi 2684 - Luzuriaga','B-01',''],
+    ['Militello Agustin Roberto','11115975','2613466205','romimilitello@gmail.com','Ozamis 1231 - Maipú','B-16',''],
+    ['Miranda Darío Osvaldo','23435769','2615265732','dmirandad@gmail.com','Capetillo 382 - Maipú','A-27',''],
+    ['Moreno Carlos Lorenzo','22569896','2615263830','mariacalivar15@hotmail.com','Godoy Cruz 1128 - Maipú','A-02',''],
+    ['Moscoso Leonardo','29574581','2614718752','leonardo.moscoso@outlook.com','Aguado 431 - Mendoza','B-22',''],
+    ['Muñoz Gustavo','25329692','2615174713','marcelocolo83@gmail.com','B° Viejo tonel 2 - Maipú','A-08','Plan de Pago'],
+    ['Olguín Analía','23340560','2613621636','','Cadetes Argentinos 9836 - Rodeo de la Cruz','A-20','Edicto'],
+    ['Palacios Samanta','32872560','2665628237','sharak1052@gmail.com','Héroes de Malvinas 810 - San Luis','A-23','Plan de Pago'],
+    ['Palma María Aurelia','26444044','2612456647','mari_aura@live.com.ar','Pablo Pescara 645 - Maipú','A-18',''],
+    ['Pensalfine Gabriel Antonio','26527783','2616943561','pensalfinegabriel014@gmail.com','Hipólito Irigoyen 1037 - Gral.Gutierrez','A-16',''],
+    ['Perdichizzi Santos Salvador','11902232','2616648257','romi-perdichizzi@hotmail.com','Dr.Brandi 490 - Maipú','B-04',''],
+    ['Pereyra Rodolfo Jesus','17800055','2616349640','rodolfopereyra055@gmail.com','Leopoldo Lugones 604 - Gral.Gutierrez','B-21',''],
+    ['Rodriguez Alexis Nicolás','33705405','2615656833','An.rodriguezlujan@outlook.com','Patricias Argentinas 519 - Maipu','A-03',''],
+    ['Rodriguez Juan Marcelo','24447781','2616553223','marcelo_mzamaipu@hotmail.com','El Porvenir 450 - Coquimbito','B-15',''],
+    ['Rojas Oscar Jesús','33275081','2615982638','oscarjesusrojas2223@gmail.com','Ruta 15 Km 37 Ugarteche','B-03',''],
+    ['Romera Antonio','15063276','2615636786','','Lemos 47 - Maipu','A-17','Deuda vigente Paga cuota'],
+    ['Sarmiento Mónica','20113473','','vivisarmiento4@hotmail.com','Corrientes 114 - Maipú','B-06',''],
+    ['Tizza Walter Fernando','23267669','2612403376','wft73tizza@gmail.com','Zanichelli 722 - Maipú','A-21',''],
+    ['Torres Raúl','93943564','2615799370','r_torres2011@yahoo.com','Formosa 2281 - Godoy Cruz','B-09',''],
+    ['Unanua Rubén','20335651','','','Godoy Cruz','B-12','Plan de Pago'],
+    ['Vanella Maria Celeste (Lote 1)','27213956','2615788563','celevanella@hotmail.com','M25 C6 B° La Bastilla - Las Heras','A-11','CD'],
+    ['Vanella Maria Celeste (Lote 2)','27213956B','2615788563','celevanella@hotmail.com','M25 C6 B° La Bastilla - Las Heras','A-12','CD'],
+    ['Zapata Walter Dante','26781144','2613058977','walterdantezapata@gmail.com','Chavarria 98 - Gral.Gutierrez','A-10',''],
+    ['Cereda Juan Carlos','32532316','2615016069','juankcs_986@hotmail.com','Zorzal 3148 - Luzuriaga','B-18',''],
+  ];
+  const socios=getSocios(); let cnt=0;
+  demo.forEach(([nombre,dni,tel,email,dir,lote,estado])=>{
+    if(socios.find(s=>s.dni===dni)) return;
+    socios.push({
+      id:Date.now().toString()+Math.random().toString(36).slice(2),
+      nombre,dni,tel,email,dir,lote,fecha:'',obs:'',estado,
+      saldoBase: SALDOS[dni]||0
+    });
+    cnt++;
+  });
+  DB.set('socios',socios);
+  showMsg('cfg-msg',`✅ ${cnt} socios cargados con deuda histórica real del Excel`,'ok');
+  renderConfig();
+}
+
+
+function cargarIPIMHistorico(){
+  if(getIPIM().length && !confirm('Ya hay períodos IPIM cargados. ¿Reemplazar con el historial completo 2016-2026?')) return;
+  const HISTORICO = [{"year":2016,"mes":1,"ipim":80.9883,"coef":1.0,"cuota":2100},{"year":2016,"mes":2,"ipim":85.0377,"coef":1.04999981,"cuota":2100},{"year":2016,"mes":3,"ipim":87.0786,"coef":1.02399994,"cuota":2100},{"year":2016,"mes":4,"ipim":88.3847,"coef":1.01499909,"cuota":2100},{"year":2016,"mes":5,"ipim":91.5666,"coef":1.03600057,"cuota":2100},{"year":2016,"mes":6,"ipim":94.222,"coef":1.02899966,"cuota":2100},{"year":2016,"mes":7,"ipim":96.766,"coef":1.02700006,"cuota":2100},{"year":2016,"mes":8,"ipim":97.1531,"coef":1.00400037,"cuota":2100},{"year":2016,"mes":9,"ipim":97.5417,"coef":1.00399987,"cuota":2100},{"year":2016,"mes":10,"ipim":98.127,"coef":1.00600051,"cuota":2100},{"year":2016,"mes":11,"ipim":99.2063,"coef":1.01099901,"cuota":2100},{"year":2016,"mes":12,"ipim":100.0,"coef":1.0080005,"cuota":2100},{"year":2017,"mes":1,"ipim":101.5859,"coef":1.015859,"cuota":2100},{"year":2017,"mes":2,"ipim":103.6859,"coef":1.02067216,"cuota":2100},{"year":2017,"mes":3,"ipim":106.1476,"coef":1.0237419,"cuota":2100},{"year":2017,"mes":4,"ipim":108.9667,"coef":1.0265583,"cuota":2100},{"year":2017,"mes":5,"ipim":110.5301,"coef":1.0143475,"cuota":2100},{"year":2017,"mes":6,"ipim":111.8477,"coef":1.01192073,"cuota":2100},{"year":2017,"mes":7,"ipim":113.7852,"coef":1.01732266,"cuota":2100},{"year":2017,"mes":8,"ipim":115.3819,"coef":1.01403258,"cuota":2100},{"year":2017,"mes":9,"ipim":117.5719,"coef":1.01898045,"cuota":2100},{"year":2017,"mes":10,"ipim":119.3528,"coef":1.01514733,"cuota":2100},{"year":2017,"mes":11,"ipim":120.994,"coef":1.01375083,"cuota":2100},{"year":2017,"mes":12,"ipim":124.7956,"coef":1.03141974,"cuota":2100},{"year":2018,"mes":1,"ipim":126.9887,"coef":1.01757354,"cuota":2100},{"year":2018,"mes":2,"ipim":130.0606,"coef":1.02419034,"cuota":2100},{"year":2018,"mes":3,"ipim":133.1054,"coef":1.02341063,"cuota":2100},{"year":2018,"mes":4,"ipim":136.7512,"coef":1.02739032,"cuota":2100},{"year":2018,"mes":5,"ipim":139.5893,"coef":1.02075375,"cuota":2100},{"year":2018,"mes":6,"ipim":144.8053,"coef":1.03736676,"cuota":2100},{"year":2018,"mes":7,"ipim":149.2966,"coef":1.03101613,"cuota":2100},{"year":2018,"mes":8,"ipim":155.1034,"coef":1.03889439,"cuota":2100},{"year":2018,"mes":9,"ipim":165.2383,"coef":1.06534286,"cuota":2100},{"year":2018,"mes":10,"ipim":174.1473,"coef":1.05391607,"cuota":2100},{"year":2018,"mes":11,"ipim":179.6388,"coef":1.03153365,"cuota":2100},{"year":2018,"mes":12,"ipim":184.2552,"coef":1.02569823,"cuota":2100},{"year":2019,"mes":1,"ipim":189.6101,"coef":1.02906241,"cuota":2100},{"year":2019,"mes":2,"ipim":196.7501,"coef":1.03765622,"cuota":2100},{"year":2019,"mes":3,"ipim":205.9571,"coef":1.0467954,"cuota":2100},{"year":2019,"mes":4,"ipim":213.0517,"coef":1.03444698,"cuota":2100},{"year":2019,"mes":5,"ipim":219.5691,"coef":1.0305907,"cuota":2100},{"year":2019,"mes":6,"ipim":225.537,"coef":1.02718005,"cuota":2100},{"year":2019,"mes":7,"ipim":230.494,"coef":1.02197866,"cuota":2100},{"year":2019,"mes":8,"ipim":239.6077,"coef":1.03953986,"cuota":2100},{"year":2019,"mes":9,"ipim":253.7102,"coef":1.05885662,"cuota":2100},{"year":2019,"mes":10,"ipim":262.0661,"coef":1.03293482,"cuota":2100},{"year":2019,"mes":11,"ipim":273.2158,"coef":1.04254537,"cuota":2100},{"year":2019,"mes":12,"ipim":283.4442,"coef":1.03743707,"cuota":2100},{"year":2020,"mes":1,"ipim":289.8299,"coef":1.02252895,"cuota":2100},{"year":2020,"mes":2,"ipim":295.666,"coef":1.02013629,"cuota":2100},{"year":2020,"mes":3,"ipim":305.5515,"coef":1.03343469,"cuota":2100},{"year":2020,"mes":4,"ipim":310.1243,"coef":1.01496573,"cuota":2100},{"year":2020,"mes":5,"ipim":314.9087,"coef":1.01542736,"cuota":2100},{"year":2020,"mes":6,"ipim":321.9738,"coef":1.02243539,"cuota":2100},{"year":2020,"mes":7,"ipim":328.2014,"coef":1.01934195,"cuota":2100},{"year":2020,"mes":8,"ipim":337.0632,"coef":1.0270011,"cuota":2100},{"year":2020,"mes":9,"ipim":346.6207,"coef":1.02835522,"cuota":2100},{"year":2020,"mes":10,"ipim":359.657,"coef":1.0376097,"cuota":2100},{"year":2020,"mes":11,"ipim":371.0211,"coef":1.03159705,"cuota":2100},{"year":2020,"mes":12,"ipim":385.8826,"coef":1.04005567,"cuota":2100},{"year":2021,"mes":1,"ipim":401.5071,"coef":1.04049029,"cuota":4100},{"year":2021,"mes":2,"ipim":415.8595,"coef":1.03574632,"cuota":4100},{"year":2021,"mes":3,"ipim":435.8657,"coef":1.04810807,"cuota":4100},{"year":2021,"mes":4,"ipim":453.6503,"coef":1.04080294,"cuota":4100},{"year":2021,"mes":5,"ipim":468.725,"coef":1.03322978,"cuota":4100},{"year":2021,"mes":6,"ipim":483.6049,"coef":1.03174548,"cuota":4100},{"year":2021,"mes":7,"ipim":498.0987,"coef":1.02997033,"cuota":4100},{"year":2021,"mes":8,"ipim":510.3942,"coef":1.02468487,"cuota":4100},{"year":2021,"mes":9,"ipim":528.4968,"coef":1.03546788,"cuota":4100},{"year":2021,"mes":10,"ipim":547.0802,"coef":1.03516275,"cuota":4100},{"year":2021,"mes":11,"ipim":560.9184,"coef":1.02529465,"cuota":4100},{"year":2021,"mes":12,"ipim":582.4575,"coef":1.0383997,"cuota":4100},{"year":2022,"mes":1,"ipim":605.0317,"coef":1.03875682,"cuota":6100},{"year":2022,"mes":2,"ipim":633.4341,"coef":1.04694366,"cuota":6100},{"year":2022,"mes":3,"ipim":676.0566,"coef":1.06728798,"cuota":6100},{"year":2022,"mes":4,"ipim":716.9399,"coef":1.06047319,"cuota":6100},{"year":2022,"mes":5,"ipim":753.147,"coef":1.05050228,"cuota":6100},{"year":2022,"mes":6,"ipim":793.0278,"coef":1.05295221,"cuota":6100},{"year":2022,"mes":7,"ipim":851.761,"coef":1.07406197,"cuota":6100},{"year":2022,"mes":8,"ipim":911.1316,"coef":1.06970336,"cuota":6100},{"year":2022,"mes":9,"ipim":967.3076,"coef":1.0616552,"cuota":6100},{"year":2022,"mes":10,"ipim":1028.706,"coef":1.0634735,"cuota":6100},{"year":2022,"mes":11,"ipim":1079.2787,"coef":1.04916147,"cuota":6100},{"year":2022,"mes":12,"ipim":1134.5875,"coef":1.05124608,"cuota":6100},{"year":2023,"mes":1,"ipim":1202.979,"coef":1.06027874,"cuota":6100},{"year":2023,"mes":2,"ipim":1282.7091,"coef":1.06627722,"cuota":6100},{"year":2023,"mes":3,"ipim":1381.1601,"coef":1.0767524,"cuota":6100},{"year":2023,"mes":4,"ipim":1497.2147,"coef":1.0840269,"cuota":6100},{"year":2023,"mes":5,"ipim":1613.5895,"coef":1.07772753,"cuota":6100},{"year":2023,"mes":6,"ipim":1709.6115,"coef":1.05950832,"cuota":6100},{"year":2023,"mes":7,"ipim":1818.0838,"coef":1.06344851,"cuota":6100},{"year":2023,"mes":8,"ipim":2044.2832,"coef":1.12441638,"cuota":6100},{"year":2023,"mes":9,"ipim":2304.9242,"coef":1.1274975,"cuota":6100},{"year":2023,"mes":10,"ipim":2496.273,"coef":1.08301739,"cuota":6100},{"year":2023,"mes":11,"ipim":2816.0628,"coef":1.1281069,"cuota":6100},{"year":2023,"mes":12,"ipim":3533.1922,"coef":1.25465675,"cuota":6100},{"year":2024,"mes":1,"ipim":4261.5324,"coef":1.20614225,"cuota":6100},{"year":2024,"mes":2,"ipim":4825.7881,"coef":1.13240676,"cuota":6100},{"year":2024,"mes":3,"ipim":5357.0929,"coef":1.110097,"cuota":6100},{"year":2024,"mes":4,"ipim":5830.2271,"coef":1.08831921,"cuota":6100},{"year":2024,"mes":5,"ipim":6073.7165,"coef":1.04176328,"cuota":6100},{"year":2024,"mes":6,"ipim":6351.7145,"coef":1.04577066,"cuota":22000},{"year":2024,"mes":7,"ipim":6607.7479,"coef":1.04030934,"cuota":22000},{"year":2024,"mes":8,"ipim":6883.4412,"coef":1.04172273,"cuota":22000},{"year":2024,"mes":9,"ipim":7122.2421,"coef":1.03469208,"cuota":22000},{"year":2024,"mes":10,"ipim":7313.9542,"coef":1.02691738,"cuota":22000},{"year":2024,"mes":11,"ipim":7491.4314,"coef":1.02426556,"cuota":22000},{"year":2024,"mes":12,"ipim":7694.0075,"coef":1.02704104,"cuota":22000},{"year":2025,"mes":1,"ipim":7864.1257,"coef":1.02211048,"cuota":22000},{"year":2025,"mes":2,"ipim":8052.9927,"coef":1.02401627,"cuota":22000},{"year":2025,"mes":3,"ipim":8353.3158,"coef":1.03729335,"cuota":22000},{"year":2025,"mes":4,"ipim":8585.6078,"coef":1.02780836,"cuota":22000},{"year":2025,"mes":5,"ipim":8714.4871,"coef":1.01501109,"cuota":22000},{"year":2025,"mes":6,"ipim":8855.5681,"coef":1.01618925,"cuota":22000},{"year":2025,"mes":7,"ipim":9023.973,"coef":1.01901684,"cuota":22000},{"year":2025,"mes":8,"ipim":9193.2441,"coef":1.01875794,"cuota":22000},{"year":2025,"mes":9,"ipim":9384.0922,"coef":1.0207596,"cuota":22000},{"year":2025,"mes":10,"ipim":9603.8623,"coef":1.02341943,"cuota":22000},{"year":2025,"mes":11,"ipim":9841.3581,"coef":1.0247292,"cuota":22000},{"year":2025,"mes":12,"ipim":10121.3715,"coef":1.02845272,"cuota":22000},{"year":2026,"mes":1,"ipim":10413.0309,"coef":1.02881619,"cuota":55000},{"year":2026,"mes":2,"ipim":10714.6255,"coef":1.02896319,"cuota":55000},{"year":2026,"mes":3,"ipim":11077.0608,"coef":1.03382622,"cuota":55000},{"year":2026,"mes":4,"ipim":11363.0904,"coef":1.0258218,"cuota":55000},{"year":2026,"mes":5,"ipim":0,"coef":1.0,"cuota":55000},{"year":2026,"mes":6,"ipim":0,"coef":1.0,"cuota":55000}];
+  DB.set('ipim', HISTORICO);
+  actualizarSidebarIPIM();
+  initSelectsPeriodo();
+  initInformes();
+  showMsg('cfg-msg','✅ '+HISTORICO.length+' períodos IPIM cargados (Ene 2016 → Jun 2026)','ok');
+  renderConfig();
+}
+
+function inyectarSaldos(){
+  const SALDOS={"27757250":0,"30312193":235396,"18107635":55000,"16998590":55000,"20545776":0,"32532316":55000,"12044078":3520446.31,"20335947":55000,"14607700":55000,"14607700B":55000,"13292202":55000,"23531807":55000,"18447864":0,"18447864B":0,"14065439":13054679.03,"41659790":55000,"29088802":55000,"34237148":1599437.02,"36653079":3099437.02,"12783153":55000,"12783153B":55000,"27432869":12474207.23,"36341112":55000,"25782130":362290.61,"28599020":0,"20525784":0,"8140615":165000,"22559679":55000,"23713151":0,"11115975":0,"23435769":0,"22569896":55000,"29574581":22714.61,"25329692":0,"23340560":17831937.53,"32872560":0,"26444044":165000,"26527783":0,"11902232":0,"17800055":55000,"23435824":0,"33705405":55000,"24447781":0,"33275081":0,"15063276":3474425.5,"20113473":55000,"23267669":55000,"93943564":55000,"20335651":2387933.31,"27213956":2470826.81,"27213956B":2525826.81,"26781144":0,"20482570":55000};
+  const socios=getSocios();
+  let cnt=0;
+  socios.forEach(s=>{
+    if(SALDOS[s.dni]!==undefined){
+      s.saldoBase=SALDOS[s.dni];
+      cnt++;
+    }
+  });
+  DB.set('socios',socios);
+  showMsg('cfg-msg',`✅ Saldos actualizados en ${cnt} socios`,'ok');
+  renderConfig();
+  renderDashboard();
+}
+function exportar(){
+  const data={socios:getSocios(),ipim:getIPIM(),pagos:getPagos(),fecha:new Date().toISOString()};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download=`cacique_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function importar(input){
+  const file=input.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.socios) DB.set('socios',d.socios);
+      if(d.ipim)   DB.set('ipim',d.ipim);
+      if(d.pagos)  DB.set('pagos',d.pagos);
+      actualizarSidebarIPIM();
+      renderConfig();
+      showMsg('cfg-msg','✅ Backup importado correctamente','ok');
+    }catch(err){ alert('Archivo inválido'); }
+  };
+  r.readAsText(file);
+}
+function confirmarBorrarSocios(){
+  if(confirm('¿Borrar todos los socios?')){ DB.del('socios'); renderConfig(); showMsg('cfg-msg','Socios eliminados','ok'); }
+}
+function confirmarBorrarTodo(){
+  if(confirm('¿Borrar TODO? Socios, períodos y pagos.')&&confirm('¿Confirmar?')){
+    ['socios','ipim','pagos'].forEach(k=>DB.del(k));
+    actualizarSidebarIPIM();
+    renderConfig();
+    showMsg('cfg-msg','Datos eliminados','ok');
+  }
+}
+
+// =========================================================
+// INIT
+// =========================================================
+function toggleDetalle(id){
+  const el=document.getElementById(id);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+// Cargar IPIM histórico por defecto si no hay ninguno cargado
+if(getIPIM().length < 100){
+  DB.set('ipim', [{"year":2016,"mes":1,"ipim":80.9883,"coef":1.0,"cuota":2100},{"year":2016,"mes":2,"ipim":85.0377,"coef":1.04999981,"cuota":2100},{"year":2016,"mes":3,"ipim":87.0786,"coef":1.02399994,"cuota":2100},{"year":2016,"mes":4,"ipim":88.3847,"coef":1.01499909,"cuota":2100},{"year":2016,"mes":5,"ipim":91.5666,"coef":1.03600057,"cuota":2100},{"year":2016,"mes":6,"ipim":94.222,"coef":1.02899966,"cuota":2100},{"year":2016,"mes":7,"ipim":96.766,"coef":1.02700006,"cuota":2100},{"year":2016,"mes":8,"ipim":97.1531,"coef":1.00400037,"cuota":2100},{"year":2016,"mes":9,"ipim":97.5417,"coef":1.00399987,"cuota":2100},{"year":2016,"mes":10,"ipim":98.127,"coef":1.00600051,"cuota":2100},{"year":2016,"mes":11,"ipim":99.2063,"coef":1.01099901,"cuota":2100},{"year":2016,"mes":12,"ipim":100.0,"coef":1.0080005,"cuota":2100},{"year":2017,"mes":1,"ipim":101.5859,"coef":1.015859,"cuota":2100},{"year":2017,"mes":2,"ipim":103.6859,"coef":1.02067216,"cuota":2100},{"year":2017,"mes":3,"ipim":106.1476,"coef":1.0237419,"cuota":2100},{"year":2017,"mes":4,"ipim":108.9667,"coef":1.0265583,"cuota":2100},{"year":2017,"mes":5,"ipim":110.5301,"coef":1.0143475,"cuota":2100},{"year":2017,"mes":6,"ipim":111.8477,"coef":1.01192073,"cuota":2100},{"year":2017,"mes":7,"ipim":113.7852,"coef":1.01732266,"cuota":2100},{"year":2017,"mes":8,"ipim":115.3819,"coef":1.01403258,"cuota":2100},{"year":2017,"mes":9,"ipim":117.5719,"coef":1.01898045,"cuota":2100},{"year":2017,"mes":10,"ipim":119.3528,"coef":1.01514733,"cuota":2100},{"year":2017,"mes":11,"ipim":120.994,"coef":1.01375083,"cuota":2100},{"year":2017,"mes":12,"ipim":124.7956,"coef":1.03141974,"cuota":2100},{"year":2018,"mes":1,"ipim":126.9887,"coef":1.01757354,"cuota":2100},{"year":2018,"mes":2,"ipim":130.0606,"coef":1.02419034,"cuota":2100},{"year":2018,"mes":3,"ipim":133.1054,"coef":1.02341063,"cuota":2100},{"year":2018,"mes":4,"ipim":136.7512,"coef":1.02739032,"cuota":2100},{"year":2018,"mes":5,"ipim":139.5893,"coef":1.02075375,"cuota":2100},{"year":2018,"mes":6,"ipim":144.8053,"coef":1.03736676,"cuota":2100},{"year":2018,"mes":7,"ipim":149.2966,"coef":1.03101613,"cuota":2100},{"year":2018,"mes":8,"ipim":155.1034,"coef":1.03889439,"cuota":2100},{"year":2018,"mes":9,"ipim":165.2383,"coef":1.06534286,"cuota":2100},{"year":2018,"mes":10,"ipim":174.1473,"coef":1.05391607,"cuota":2100},{"year":2018,"mes":11,"ipim":179.6388,"coef":1.03153365,"cuota":2100},{"year":2018,"mes":12,"ipim":184.2552,"coef":1.02569823,"cuota":2100},{"year":2019,"mes":1,"ipim":189.6101,"coef":1.02906241,"cuota":2100},{"year":2019,"mes":2,"ipim":196.7501,"coef":1.03765622,"cuota":2100},{"year":2019,"mes":3,"ipim":205.9571,"coef":1.0467954,"cuota":2100},{"year":2019,"mes":4,"ipim":213.0517,"coef":1.03444698,"cuota":2100},{"year":2019,"mes":5,"ipim":219.5691,"coef":1.0305907,"cuota":2100},{"year":2019,"mes":6,"ipim":225.537,"coef":1.02718005,"cuota":2100},{"year":2019,"mes":7,"ipim":230.494,"coef":1.02197866,"cuota":2100},{"year":2019,"mes":8,"ipim":239.6077,"coef":1.03953986,"cuota":2100},{"year":2019,"mes":9,"ipim":253.7102,"coef":1.05885662,"cuota":2100},{"year":2019,"mes":10,"ipim":262.0661,"coef":1.03293482,"cuota":2100},{"year":2019,"mes":11,"ipim":273.2158,"coef":1.04254537,"cuota":2100},{"year":2019,"mes":12,"ipim":283.4442,"coef":1.03743707,"cuota":2100},{"year":2020,"mes":1,"ipim":289.8299,"coef":1.02252895,"cuota":2100},{"year":2020,"mes":2,"ipim":295.666,"coef":1.02013629,"cuota":2100},{"year":2020,"mes":3,"ipim":305.5515,"coef":1.03343469,"cuota":2100},{"year":2020,"mes":4,"ipim":310.1243,"coef":1.01496573,"cuota":2100},{"year":2020,"mes":5,"ipim":314.9087,"coef":1.01542736,"cuota":2100},{"year":2020,"mes":6,"ipim":321.9738,"coef":1.02243539,"cuota":2100},{"year":2020,"mes":7,"ipim":328.2014,"coef":1.01934195,"cuota":2100},{"year":2020,"mes":8,"ipim":337.0632,"coef":1.0270011,"cuota":2100},{"year":2020,"mes":9,"ipim":346.6207,"coef":1.02835522,"cuota":2100},{"year":2020,"mes":10,"ipim":359.657,"coef":1.0376097,"cuota":2100},{"year":2020,"mes":11,"ipim":371.0211,"coef":1.03159705,"cuota":2100},{"year":2020,"mes":12,"ipim":385.8826,"coef":1.04005567,"cuota":2100},{"year":2021,"mes":1,"ipim":401.5071,"coef":1.04049029,"cuota":4100},{"year":2021,"mes":2,"ipim":415.8595,"coef":1.03574632,"cuota":4100},{"year":2021,"mes":3,"ipim":435.8657,"coef":1.04810807,"cuota":4100},{"year":2021,"mes":4,"ipim":453.6503,"coef":1.04080294,"cuota":4100},{"year":2021,"mes":5,"ipim":468.725,"coef":1.03322978,"cuota":4100},{"year":2021,"mes":6,"ipim":483.6049,"coef":1.03174548,"cuota":4100},{"year":2021,"mes":7,"ipim":498.0987,"coef":1.02997033,"cuota":4100},{"year":2021,"mes":8,"ipim":510.3942,"coef":1.02468487,"cuota":4100},{"year":2021,"mes":9,"ipim":528.4968,"coef":1.03546788,"cuota":4100},{"year":2021,"mes":10,"ipim":547.0802,"coef":1.03516275,"cuota":4100},{"year":2021,"mes":11,"ipim":560.9184,"coef":1.02529465,"cuota":4100},{"year":2021,"mes":12,"ipim":582.4575,"coef":1.0383997,"cuota":4100},{"year":2022,"mes":1,"ipim":605.0317,"coef":1.03875682,"cuota":6100},{"year":2022,"mes":2,"ipim":633.4341,"coef":1.04694366,"cuota":6100},{"year":2022,"mes":3,"ipim":676.0566,"coef":1.06728798,"cuota":6100},{"year":2022,"mes":4,"ipim":716.9399,"coef":1.06047319,"cuota":6100},{"year":2022,"mes":5,"ipim":753.147,"coef":1.05050228,"cuota":6100},{"year":2022,"mes":6,"ipim":793.0278,"coef":1.05295221,"cuota":6100},{"year":2022,"mes":7,"ipim":851.761,"coef":1.07406197,"cuota":6100},{"year":2022,"mes":8,"ipim":911.1316,"coef":1.06970336,"cuota":6100},{"year":2022,"mes":9,"ipim":967.3076,"coef":1.0616552,"cuota":6100},{"year":2022,"mes":10,"ipim":1028.706,"coef":1.0634735,"cuota":6100},{"year":2022,"mes":11,"ipim":1079.2787,"coef":1.04916147,"cuota":6100},{"year":2022,"mes":12,"ipim":1134.5875,"coef":1.05124608,"cuota":6100},{"year":2023,"mes":1,"ipim":1202.979,"coef":1.06027874,"cuota":6100},{"year":2023,"mes":2,"ipim":1282.7091,"coef":1.06627722,"cuota":6100},{"year":2023,"mes":3,"ipim":1381.1601,"coef":1.0767524,"cuota":6100},{"year":2023,"mes":4,"ipim":1497.2147,"coef":1.0840269,"cuota":6100},{"year":2023,"mes":5,"ipim":1613.5895,"coef":1.07772753,"cuota":6100},{"year":2023,"mes":6,"ipim":1709.6115,"coef":1.05950832,"cuota":6100},{"year":2023,"mes":7,"ipim":1818.0838,"coef":1.06344851,"cuota":6100},{"year":2023,"mes":8,"ipim":2044.2832,"coef":1.12441638,"cuota":6100},{"year":2023,"mes":9,"ipim":2304.9242,"coef":1.1274975,"cuota":6100},{"year":2023,"mes":10,"ipim":2496.273,"coef":1.08301739,"cuota":6100},{"year":2023,"mes":11,"ipim":2816.0628,"coef":1.1281069,"cuota":6100},{"year":2023,"mes":12,"ipim":3533.1922,"coef":1.25465675,"cuota":6100},{"year":2024,"mes":1,"ipim":4261.5324,"coef":1.20614225,"cuota":6100},{"year":2024,"mes":2,"ipim":4825.7881,"coef":1.13240676,"cuota":6100},{"year":2024,"mes":3,"ipim":5357.0929,"coef":1.110097,"cuota":6100},{"year":2024,"mes":4,"ipim":5830.2271,"coef":1.08831921,"cuota":6100},{"year":2024,"mes":5,"ipim":6073.7165,"coef":1.04176328,"cuota":6100},{"year":2024,"mes":6,"ipim":6351.7145,"coef":1.04577066,"cuota":22000},{"year":2024,"mes":7,"ipim":6607.7479,"coef":1.04030934,"cuota":22000},{"year":2024,"mes":8,"ipim":6883.4412,"coef":1.04172273,"cuota":22000},{"year":2024,"mes":9,"ipim":7122.2421,"coef":1.03469208,"cuota":22000},{"year":2024,"mes":10,"ipim":7313.9542,"coef":1.02691738,"cuota":22000},{"year":2024,"mes":11,"ipim":7491.4314,"coef":1.02426556,"cuota":22000},{"year":2024,"mes":12,"ipim":7694.0075,"coef":1.02704104,"cuota":22000},{"year":2025,"mes":1,"ipim":7864.1257,"coef":1.02211048,"cuota":22000},{"year":2025,"mes":2,"ipim":8052.9927,"coef":1.02401627,"cuota":22000},{"year":2025,"mes":3,"ipim":8353.3158,"coef":1.03729335,"cuota":22000},{"year":2025,"mes":4,"ipim":8585.6078,"coef":1.02780836,"cuota":22000},{"year":2025,"mes":5,"ipim":8714.4871,"coef":1.01501109,"cuota":22000},{"year":2025,"mes":6,"ipim":8855.5681,"coef":1.01618925,"cuota":22000},{"year":2025,"mes":7,"ipim":9023.973,"coef":1.01901684,"cuota":22000},{"year":2025,"mes":8,"ipim":9193.2441,"coef":1.01875794,"cuota":22000},{"year":2025,"mes":9,"ipim":9384.0922,"coef":1.0207596,"cuota":22000},{"year":2025,"mes":10,"ipim":9603.8623,"coef":1.02341943,"cuota":22000},{"year":2025,"mes":11,"ipim":9841.3581,"coef":1.0247292,"cuota":22000},{"year":2025,"mes":12,"ipim":10121.3715,"coef":1.02845272,"cuota":22000},{"year":2026,"mes":1,"ipim":10413.0309,"coef":1.02881619,"cuota":55000},{"year":2026,"mes":2,"ipim":10714.6255,"coef":1.02896319,"cuota":55000},{"year":2026,"mes":3,"ipim":11077.0608,"coef":1.03382622,"cuota":55000},{"year":2026,"mes":4,"ipim":11363.0904,"coef":1.0258218,"cuota":55000},{"year":2026,"mes":5,"ipim":0,"coef":1.0,"cuota":55000},{"year":2026,"mes":6,"ipim":0,"coef":1.0,"cuota":55000}]);
+}
+actualizarSidebarIPIM();
+initSelectsPeriodo();
+initInformes();
+// Mostrar informe tesorero al arrancar
+setTimeout(()=>{
+  showSubTab('informes','tesorero');
+  genTesorero();
+},100);
+</script>
+</body>
+</html>
