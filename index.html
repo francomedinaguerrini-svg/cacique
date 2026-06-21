@@ -157,11 +157,9 @@ tr:hover td{background:#fafafa}
 
   <div style="padding:8px 0;flex:1;overflow-y:auto">
     <div class="nav-item active" onclick="showPage('informes');setTimeout(()=>showSubTab('informes','tesorero'),50)"><span class="nav-icon">📄</span> Informes</div>
-    <div class="nav-item" onclick="showPage('informes');setTimeout(()=>showSubTab('informes','estado'),50)"><span class="nav-icon">👤</span> Estado por socio</div>
-    <div class="nav-item" onclick="showPage('pagos')"><span class="nav-icon">💰</span> Cargar pagos</div>
-    <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">📊</span> Resumen</div>
     <div class="nav-item" onclick="showPage('socios')"><span class="nav-icon">👥</span> Socios</div>
-    <div class="nav-item" onclick="showPage('config')"><span class="nav-icon">⚙️</span> Config</div>
+    <div class="nav-item" onclick="showPage('pagos')"><span class="nav-icon">💰</span> Pagos</div>
+    <div class="nav-item nav-config" onclick="showPage('config')" style="margin-top:auto;border-top:1px solid #222;padding-top:12px"><span class="nav-icon">⚙️</span> Config</div>
   </div>
   <div style="padding:10px 14px;border-top:1px solid #222;font-size:10px;color:#444">
     Datos guardados en este navegador
@@ -282,9 +280,10 @@ tr:hover td{background:#fafafa}
         <option>Escribano</option><option>Deuda vigente Paga cuota</option>
       </select>
     </div>
+    <div id="socios-total-bar" style="display:flex;gap:16px;align-items:center;margin-bottom:8px;padding:10px 14px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;font-size:13px"></div>
     <div class="card" style="padding:0;overflow:hidden">
       <table>
-        <thead><tr><th>#</th><th>Nombre</th><th>DNI</th><th>Teléfono</th><th>Email</th><th>Lote</th><th>Estado legal</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Nombre / DNI</th><th>Contacto</th><th>Estado</th><th style="text-align:right">Deuda base</th><th style="text-align:right">Plan pago</th><th style="text-align:right">Total</th><th></th></tr></thead>
         <tbody id="socios-tbody"></tbody>
       </table>
     </div>
@@ -1001,26 +1000,64 @@ function autoBackup(){
 // =========================================================
 function renderSocios(q=''){
   const socios=getSocios();
+  // Barra de totales
+  const bar = document.getElementById('socios-total-bar');
+  if(bar){
+    const totalDeudas = socios.reduce((a,s)=>a+calcDeudaTotal(s.id),0);
+    const totalPlanes = Object.keys(PLAN_PAGO).reduce((a,dni)=>a+saldoPlan(dni),0);
+    const conDeuda = socios.filter(s=>calcDeudaTotal(s.id)>0).length;
+    bar.innerHTML=`
+      <span style="color:#888">👥 <strong style="color:#222">${socios.length}</strong> socios</span>
+      <span style="color:#ccc">|</span>
+      <span style="color:#888">Con deuda: <strong style="color:#b03030">${conDeuda}</strong></span>
+      <span style="color:#ccc">|</span>
+      <span style="color:#888">Deuda individual: <strong style="color:#b03030">$${fmt(Math.round(totalDeudas-totalPlanes))}</strong></span>
+      <span style="color:#ccc">|</span>
+      <span style="color:#888">Planes: <strong style="color:#c47a00">$${fmt(Math.round(totalPlanes))}</strong></span>
+      <span style="color:#ccc">|</span>
+      <span style="color:#888">TOTAL: <strong style="color:#b03030;font-size:14px">$${fmt(Math.round(totalDeudas))}</strong></span>`;
+  }
   const filtroE=document.getElementById('filtro-estado')?.value||'';
   let lista=socios;
   if(q) lista=lista.filter(s=>s.nombre.toLowerCase().includes(q.toLowerCase())||s.dni.includes(q));
   if(filtroE) lista=lista.filter(s=>s.estado===filtroE);
   const tbody=document.getElementById('socios-tbody');
   if(!lista.length){ tbody.innerHTML=`<tr><td colspan="8" class="empty-state">Sin socios</td></tr>`; return; }
-  tbody.innerHTML=lista.map((s,i)=>`
-    <tr>
-      <td style="color:#aaa">${i+1}</td>
-      <td style="font-weight:500">${s.nombre}</td>
-      <td style="color:#888">${s.dni}</td>
-      <td>${s.tel||'-'}</td>
-      <td style="font-size:12px;color:#4a7ab5">${s.email||'-'}</td>
-      <td>${s.lote?`<span class="badge badge-gris">${s.lote}</span>`:'-'}</td>
+  tbody.innerHTML=lista.map((s,i)=>{
+    const deudaBase = calcDeudaBase ? calcDeudaBase(s.id) : (parseFloat(s.saldoBase)||0);
+    const deudaTotal = calcDeudaTotal(s.id);
+    const tienePlan = !!PLAN_PAGO[s.dni];
+    const saldoPlanVal = tienePlan ? saldoPlan(s.dni) : 0;
+    const colorDeuda = deudaTotal > 0 ? '#b03030' : '#1a7a45';
+    return `<tr>
+      <td style="color:#aaa;font-size:12px">${i+1}</td>
+      <td>
+        <div style="font-weight:600;font-size:13px">${s.nombre}</div>
+        <div style="font-size:11px;color:#aaa">DNI ${s.dni}${s.lote?' · Lote '+s.lote:''}</div>
+        ${s.dir?`<div style="font-size:11px;color:#bbb">${s.dir}</div>`:''}
+      </td>
+      <td>
+        ${s.tel?`<div style="font-size:12px">📞 ${s.tel}</div>`:''}
+        ${s.email?`<div style="font-size:11px;color:#4a7ab5">${s.email}</div>`:''}
+      </td>
       <td>${estadoBadge(s.estado)}</td>
-      <td style="display:flex;gap:4px">
+      <td style="text-align:right">
+        <div style="font-size:11px;color:#aaa">Deuda base</div>
+        <div style="font-weight:600;color:${parseFloat(s.saldoBase||0)>0?'#b03030':'#aaa'};font-size:13px">$${fmt(Math.round(parseFloat(s.saldoBase||0)))}</div>
+      </td>
+      <td style="text-align:right">
+        ${tienePlan?`<div style="font-size:11px;color:#aaa">Plan de pago</div><div style="font-weight:600;color:#c47a00;font-size:13px">$${fmt(Math.round(saldoPlanVal))}</div>`:'<span style="color:#ccc;font-size:11px">-</span>'}
+      </td>
+      <td style="text-align:right">
+        <div style="font-size:11px;color:#aaa">TOTAL</div>
+        <div style="font-weight:700;color:${colorDeuda};font-size:14px">$${fmt(Math.round(deudaTotal))}</div>
+      </td>
+      <td style="white-space:nowrap">
         <button class="btn btn-sm" onclick="editarSocio('${s.id}')" style="padding:3px 8px">✏️</button>
         <button class="btn btn-danger btn-sm" onclick="eliminarSocio('${s.id}')">✕</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function guardarSocio(){
