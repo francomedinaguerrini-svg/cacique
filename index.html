@@ -1024,7 +1024,6 @@ function renderSocios(q=''){
   const tbody=document.getElementById('socios-tbody');
   if(!lista.length){ tbody.innerHTML=`<tr><td colspan="8" class="empty-state">Sin socios</td></tr>`; return; }
   tbody.innerHTML=lista.map((s,i)=>{
-    const deudaBase = calcDeudaBase ? calcDeudaBase(s.id) : (parseFloat(s.saldoBase)||0);
     const deudaTotal = calcDeudaTotal(s.id);
     const tienePlan = !!PLAN_PAGO[s.dni];
     const saldoPlanVal = tienePlan ? saldoPlan(s.dni) : 0;
