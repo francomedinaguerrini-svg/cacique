@@ -1616,54 +1616,70 @@ function previsualizarExcel(){
 
   const socios = getSocios();
   const filas = raw.split('\n').map(l=>l.split('\t').map(c=>c.trim()));
+  const filasValidas = filas.filter(f=>{
+    if(f.length<3 || !f[0] || !f[1]) return false;
+    // Ignorar fila de encabezado
+    if(/^(socios|nº|n°|#|apellido|nombre)/i.test(f[0])||/^(socios|nº|n°|#|apellido|nombre)/i.test(f[1])) return false;
+    return true;
+  });
+  if(!filasValidas.length){ showMsg('cfg-msg','No se detectaron filas válidas.','err'); return; }
 
-  // Filtrar filas vacías o con menos de 2 columnas
-  const filasValidas = filas.filter(f=>f.length>=2 && f[0] && f[1]);
-
-  if(!filasValidas.length){ showMsg('cfg-msg','No se detectaron filas válidas. Verificá que hayas copiado desde Excel con columnas separadas por tabulación.','err'); return; }
+  // Detectar formato: si col[0] es número → formato mutual (Nº|Nombre|DNI|Deuda|Estado)
+  //                   si col[0] es texto   → formato genérico (Nombre|DNI|Tel|...)
+  const formatoMutual = /^\d+$/.test(filasValidas[0][0]);
 
   _excelParseado = [];
   const resumen = { nuevos:[], actualizados:[], sinCambios:[] };
 
-  filasValidas.forEach(cols=>{
-    // Columnas: [0]Nombre [1]DNI [2]Tel [3]Email [4]Domicilio [5]Lote [6]Estado [7]Saldo
-    const nombre   = cols[0]||'';
-    const dni      = (cols[1]||'').replace(/\./g,'').replace(/,/g,'').trim();
-    const tel      = cols[2]||'';
-    const email    = cols[3]||'';
-    const dir      = cols[4]||'';
-    const lote     = cols[5]||'';
-    const estado   = cols[6]||'';
-    // Saldo: limpiar separadores de miles y decimales argentinos
-    const saldoRaw = (cols[7]||'0').replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,'');
-    const saldo    = parseFloat(saldoRaw)||0;
+  const parseSaldo = v => {
+    if(!v || v==='-' || v==='-   ' || v==='- ') return 0;
+    // formato argentino: 3.593.769,97 → quitar puntos, coma a punto
+    return parseFloat(v.replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''))||0;
+  };
 
-    if(!dni) return;
+  filasValidas.forEach(cols=>{
+    let nombre, dni, saldo, estado, lote;
+
+    if(formatoMutual){
+      // Nº | Nombre | DNI | Deuda | Estado
+      lote   = cols[0]||'';
+      nombre = cols[1]||'';
+      dni    = (cols[2]||'').replace(/[.\-\/]/g,'').trim();
+      saldo  = parseSaldo(cols[3]||'0');
+      estado = cols[4]||'';
+    } else {
+      // Nombre | DNI | Tel | Email | Dir | Lote | Estado | Saldo
+      nombre = cols[0]||'';
+      dni    = (cols[1]||'').replace(/[.\-\/]/g,'').trim();
+      saldo  = parseSaldo(cols[7]||'0');
+      estado = cols[6]||'';
+      lote   = cols[5]||'';
+    }
+
+    if(!dni || !nombre) return;
+    // Ignorar filas de totales
+    if(nombre.toLowerCase().includes('total') || /^\$/.test(nombre)) return;
 
     const existente = socios.find(s=>s.dni===dni);
 
     if(!existente){
-      // Socio nuevo
       const nuevo = {
-        id: 'S'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-        nombre, dni, tel, email, dir, lote,
-        estado: estado||'',
+        id: 's'+lote||('S'+Date.now()),
+        nombre, dni,
+        lote: lote||'',
+        estado: estado||'Al día',
         saldoBase: saldo,
-        fechaIngreso: new Date().toISOString().slice(0,10),
-        obs:''
+        telefono:'', email:'', domicilio:''
       };
-      _excelParseado.push({ accion:'nuevo', dato: nuevo, cambios:[] });
-      resumen.nuevos.push(nombre||dni);
+      _excelParseado.push({ accion:'nuevo', dato: nuevo });
+      resumen.nuevos.push(nombre);
     } else {
-      // Detectar cambios
       const cambios = [];
       if(nombre && nombre!==existente.nombre) cambios.push({campo:'nombre', antes:existente.nombre, despues:nombre});
-      if(tel    && tel!==existente.tel)       cambios.push({campo:'tel',    antes:existente.tel,    despues:tel});
-      if(email  && email!==existente.email)   cambios.push({campo:'email',  antes:existente.email,  despues:email});
-      if(dir    && dir!==existente.dir)       cambios.push({campo:'dir',    antes:existente.dir,    despues:dir});
-      if(lote   && lote!==existente.lote)     cambios.push({campo:'lote',   antes:existente.lote,   despues:lote});
       if(estado && estado!==existente.estado) cambios.push({campo:'estado', antes:existente.estado, despues:estado});
-      if(saldo!==undefined && saldo!==parseFloat(existente.saldoBase||0))
+      if(lote   && lote!==existente.lote)     cambios.push({campo:'lote',   antes:existente.lote,   despues:lote});
+      // Solo actualizar saldo si viene explícito y distinto
+      if(saldo > 0 && saldo !== parseFloat(existente.saldoBase||0))
         cambios.push({campo:'saldoBase', antes:existente.saldoBase||0, despues:saldo});
 
       if(cambios.length){
@@ -1778,7 +1794,22 @@ function toggleDetalle(id){
 
 // Cargar pagos históricos de Junio 2026 si no hay pagos
 if(!getPagos()['2026-06']){
-  const pagosJun = {"2026-06":{"27757250":{"monto":"55000","notas":"Excel Jun-2026"},"20545776":{"monto":"55000","notas":"Excel Jun-2026"},"18447864":{"monto":"55000","notas":"Excel Jun-2026"},"28599020":{"monto":"55000","notas":"Excel Jun-2026"},"20525784":{"monto":"55000","notas":"Excel Jun-2026"},"23713151":{"monto":"55000","notas":"Excel Jun-2026"},"11115975":{"monto":"55000","notas":"Excel Jun-2026"},"23435769":{"monto":"55000","notas":"Excel Jun-2026"},"29574581":{"monto":"22715","notas":"Excel Jun-2026"},"25329692":{"monto":"55000","notas":"Excel Jun-2026"},"26527783":{"monto":"55000","notas":"Excel Jun-2026"},"11902232":{"monto":"55000","notas":"Excel Jun-2026"},"24447781":{"monto":"55000","notas":"Excel Jun-2026"},"33275081":{"monto":"55000","notas":"Excel Jun-2026"},"15063276":{"monto":"55000","notas":"Excel Jun-2026"},"32872560":{"monto":"55000","notas":"Excel Jun-2026"},"23435824":{"monto":"55000","notas":"Excel Jun-2026"},"20482570":{"monto":"3797155.82","notas":"Cancela plan de pago Jun-2026"}}};
+  // Los pagos se indexan por ID de socio (s1, s2, etc.)
+  // Socios que pagaron en junio 2026 según el Excel
+  const sociosActuales = getSocios();
+  const pagosJun = {'2026-06':{}};
+  const pagosJunDNI = {
+    '27757250': 55000, '20545776': 55000, '18447864': 55000,
+    '28599020': 55000, '20525784': 55000, '23713151': 55000,
+    '11115975': 55000, '23435769': 55000, '29574581': 22715,
+    '25329692': 55000, '26527783': 55000, '11902232': 55000,
+    '24447781': 55000, '33275081': 55000, '15063276': 55000,
+    '32872560': 55000, '23435824': 55000, '20482570': 3797155.82
+  };
+  sociosActuales.forEach(s=>{
+    const monto = pagosJunDNI[s.dni];
+    if(monto) pagosJun['2026-06'][s.id] = {monto: String(monto), notas:'Excel Jun-2026', fecha:'30/06/2026'};
+  });
   const pagosExist = getPagos();
   Object.assign(pagosExist, pagosJun);
   DB.set('pagos', pagosExist);
