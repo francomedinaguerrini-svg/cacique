@@ -140,7 +140,7 @@ tr:hover td{background:#fafafa}
 </head>
 <body>
 
-<div class="sb-overlay" id="sb-overlay" onclick="toggleSB()"></div>
+<div id="btn-reset-flotante" style="position:fixed;bottom:20px;right:20px;z-index:999;background:#b03030;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)" onclick="if(confirm('⚠️ Borrar TODO (socios, pagos, IPIM)? Esta acción no se puede deshacer.')){['cac_socios','cac_ipim','cac_pagos','cac_planes','cac_tenencias'].forEach(k=>localStorage.removeItem(k));location.reload();}">🗑 Reset total</div>
 <!-- Sidebar -->
 <div class="sidebar">
   <button class="sb-toggle" onclick="toggleSB()">☰</button>
