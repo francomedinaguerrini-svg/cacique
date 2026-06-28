@@ -6,9 +6,9 @@
 <title>Mutual del Cacique</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0ede8;color:#1a1a1a;font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0ede8;color:#1a1a1a;font-size:14px;display:grid;grid-template-columns:260px 1fr;min-height:100vh}
 
-.sidebar{position:fixed;left:0;top:0;width:260px;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar{grid-column:1;background:#111;color:#fff;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:100}
 .sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid #2a2a2a}
 .sidebar-logo h1{font-size:14px;font-weight:700;color:#fff;line-height:1.3}
 .sidebar-logo p{font-size:11px;color:#666;margin-top:2px}
@@ -26,7 +26,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-item:hover{color:#fff;background:#1a1a1a}
 .nav-item.active{color:#fff;background:#1a1a1a;border-left-color:#4caf80}
 .nav-icon{font-size:15px;width:18px;text-align:center}
-.main{margin-left:0;min-height:100vh;padding:20px;min-width:0}
+.main{grid-column:2;min-height:100vh;padding:20px;min-width:0}
 
 .page{display:none}.page.active{display:block}
 .page-title{font-size:20px;font-weight:700;margin-bottom:2px}
@@ -128,22 +128,22 @@ tr:hover td{background:#fafafa}
 /* Responsive sidebar */
 .sb-toggle{display:none;position:fixed;top:10px;left:10px;z-index:200;background:#111;color:#fff;border:none;border-radius:6px;padding:7px 10px;font-size:18px;cursor:pointer;line-height:1}
 @media(max-width:900px){
+  body{display:block}
   .sb-toggle{display:block}
-  .sidebar{left:-260px;transition:left .2s}
+  .sidebar{position:fixed;left:-260px;top:0;transition:left .2s;height:100vh}
   .sidebar.open{left:0}
   .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
   .sb-overlay.show{display:block}
-  .main{margin-left:0!important;padding:16px;padding-top:55px}
+  .main{padding:16px;padding-top:55px}
 }
 </style>
 </head>
 <body>
 
-<!-- Hamburguesa -->
-<button class="sb-toggle" onclick="toggleSB()">☰</button>
 <div class="sb-overlay" id="sb-overlay" onclick="toggleSB()"></div>
 <!-- Sidebar -->
 <div class="sidebar">
+  <button class="sb-toggle" onclick="toggleSB()">☰</button>
   <div class="sidebar-logo">
     <h1>Mutual del Cacique</h1>
     <p>Cooperativa de vivienda</p>
@@ -616,7 +616,16 @@ function guardarIPIM(){
   renderPeriodosLista();
   showMsg('modal-msg',`✅ ${pLabel(year,mes)} guardado. Coef: ${fmtD(coef,6)}`,'ok');
   // Actualizar selects de informes/pagos
-  initSelectsPeriodo();
+  
+// Seed de socios desde Excel junio 2026
+(function(){
+  const existing = localStorage.getItem('cac_socios');
+  if(!existing || JSON.parse(existing).length === 0){
+    localStorage.setItem('cac_socios', JSON.stringify([{"id": "s1", "nombre": "Aguirre Walter", "dni": "27757250", "lote": "1", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s2", "nombre": "Antequera Gustavo", "dni": "30312193", "lote": "2", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s3", "nombre": "Bevilacqua Mario Ruben", "dni": "18107635", "lote": "3", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s4", "nombre": "Boasso Rubén", "dni": "16998590", "lote": "4", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s5", "nombre": "Bustos Bibiana", "dni": "20545776", "lote": "5", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s6", "nombre": "Contreras José Luis", "dni": "20482570", "lote": "6", "saldoBase": 0, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s7", "nombre": "Cereda Juan Carlos", "dni": "32532316", "lote": "7", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s8", "nombre": "Contreras Raúl", "dni": "12044078", "lote": "8", "saldoBase": 3593769.97, "estado": "CD", "telefono": "", "email": "", "domicilio": ""}, {"id": "s9", "nombre": "Cotela Enrique", "dni": "20335947", "lote": "9", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s10", "nombre": "De La LLana Mario", "dni": "14607700", "lote": "10", "saldoBase": 0, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s11", "nombre": "De La LLana Mario Lote 2", "dni": "14607700B", "lote": "11", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s12", "nombre": "Díaz Mario Hector", "dni": "13292202", "lote": "12", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s13", "nombre": "Guardia Javier", "dni": "23531807", "lote": "13", "saldoBase": 0, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s14", "nombre": "Guardia Rodolfo Alejandro", "dni": "18447864", "lote": "14", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s15", "nombre": "Huidobro Horacio", "dni": "14065439", "lote": "15", "saldoBase": 13332986.05, "estado": "Edicto", "telefono": "", "email": "", "domicilio": ""}, {"id": "s16", "nombre": "Jofre Guadalupe", "dni": "41659790", "lote": "16", "saldoBase": 0, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s17", "nombre": "Loyola Marcelo", "dni": "29088802", "lote": "17", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s18", "nombre": "Lombardo Angel", "dni": "34237148", "lote": "18", "saldoBase": 1663709.09, "estado": "Escribano", "telefono": "", "email": "", "domicilio": ""}, {"id": "s19", "nombre": "Lombardo Natacha", "dni": "36653079", "lote": "19", "saldoBase": 3163709.09, "estado": "Escribano", "telefono": "", "email": "", "domicilio": ""}, {"id": "s20", "nombre": "Lombardo Walter Rubén", "dni": "12783153", "lote": "20", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s21", "nombre": "Lombardo Walter Rubén Lote 2", "dni": "12783153B", "lote": "21", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s22", "nombre": "Lorca Sergio", "dni": "27432869", "lote": "22", "saldoBase": 12740034.27, "estado": "Edicto", "telefono": "", "email": "", "domicilio": ""}, {"id": "s23", "nombre": "Lucero Lucas Hernán", "dni": "36341112", "lote": "23", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s24", "nombre": "Mairam Alfredo", "dni": "25782130", "lote": "24", "saldoBase": 367714.79, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s25", "nombre": "Martinez Walter Sebastian", "dni": "28599020", "lote": "25", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s26", "nombre": "Medina Diego Valentín", "dni": "20525784", "lote": "26", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s27", "nombre": "Melatini Hugo Armando", "dni": "8140615", "lote": "27", "saldoBase": 55000, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s28", "nombre": "Mendez Miguel", "dni": "22559679", "lote": "28", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s29", "nombre": "Mercado Cristian", "dni": "23713151", "lote": "29", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s30", "nombre": "Militello Agustin Roberto", "dni": "11115975", "lote": "30", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s31", "nombre": "Miranda Darío", "dni": "23435769", "lote": "31", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s32", "nombre": "Moreno Carlos Lorenzo", "dni": "22569896", "lote": "32", "saldoBase": 55000, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s33", "nombre": "Moscoso Leonardo", "dni": "29574581", "lote": "33", "saldoBase": 22714.61, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s34", "nombre": "Muñoz Gustavo", "dni": "25329692", "lote": "34", "saldoBase": 0, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s35", "nombre": "Olguín Analía", "dni": "23340560", "lote": "35", "saldoBase": 18212954.29, "estado": "Edicto", "telefono": "", "email": "", "domicilio": ""}, {"id": "s36", "nombre": "Palacios Samanta", "dni": "32872560", "lote": "36", "saldoBase": 0, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s37", "nombre": "Palma María Aurelia", "dni": "26444044", "lote": "37", "saldoBase": 55000, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s38", "nombre": "Pensalfine Gabriel Antonio", "dni": "26527783", "lote": "38", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s39", "nombre": "Perdichizzi Santos Salvador", "dni": "11902232", "lote": "39", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s40", "nombre": "Pereyra Rodolfo Jesus", "dni": "17800055", "lote": "40", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s41", "nombre": "Rejas Laura", "dni": "23435824", "lote": "41", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s42", "nombre": "Rodriguez Alexis Nicolás", "dni": "33705405", "lote": "42", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s43", "nombre": "Rodriguez Juan Marcelo", "dni": "24447781", "lote": "43", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s44", "nombre": "Rojas Oscar Jesús", "dni": "33275081", "lote": "44", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s45", "nombre": "Romera Antonio", "dni": "15063276", "lote": "45", "saldoBase": 3549124.69, "estado": "Deuda vigente", "telefono": "", "email": "", "domicilio": ""}, {"id": "s46", "nombre": "Sarmiento Mónica", "dni": "20113473", "lote": "46", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s47", "nombre": "Tizza Walter", "dni": "23267669", "lote": "47", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s48", "nombre": "Torres Raúl", "dni": "93943564", "lote": "48", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}, {"id": "s49", "nombre": "Unanua Rubén", "dni": "20335651", "lote": "49", "saldoBase": 2436908.24, "estado": "Plan de Pago", "telefono": "", "email": "", "domicilio": ""}, {"id": "s50", "nombre": "Vanella Maria Celeste", "dni": "27213956", "lote": "50", "saldoBase": 2322766.42, "estado": "CD", "telefono": "", "email": "", "domicilio": ""}, {"id": "s51", "nombre": "Vanella Maria Celeste Lote 2", "dni": "27213956B", "lote": "51", "saldoBase": 2577766.42, "estado": "CD", "telefono": "", "email": "", "domicilio": ""}, {"id": "s52", "nombre": "Zapata Walter", "dni": "26781144", "lote": "52", "saldoBase": 0, "estado": "Al día", "telefono": "", "email": "", "domicilio": ""}]));
+  }
+})();
+
+initSelectsPeriodo();
   if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
   if(document.getElementById('page-pagos').classList.contains('active')) renderPagos();
 }
@@ -1889,13 +1898,6 @@ function initTenencias(){
   renderHistorialTenencias();
 }
 
-function ajustarMain(){
-  const sb=document.querySelector('.sidebar');
-  const main=document.querySelector('.main');
-  if(sb&&main) main.style.marginLeft=sb.getBoundingClientRect().width+'px';
-}
-ajustarMain();
-window.addEventListener('resize',ajustarMain);
 initSelectsPeriodo();
 initInformes();
 // Mostrar informe tesorero al arrancar
