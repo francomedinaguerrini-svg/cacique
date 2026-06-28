@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0ede8;color:#1a1a1a;font-size:14px}
 
-.sidebar{position:fixed;left:0;top:0;width:17vw;min-width:200px;max-width:260px;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar{position:fixed;left:0;top:0;width:260px;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
 .sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid #2a2a2a}
 .sidebar-logo h1{font-size:14px;font-weight:700;color:#fff;line-height:1.3}
 .sidebar-logo p{font-size:11px;color:#666;margin-top:2px}
@@ -26,7 +26,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-item:hover{color:#fff;background:#1a1a1a}
 .nav-item.active{color:#fff;background:#1a1a1a;border-left-color:#4caf80}
 .nav-icon{font-size:15px;width:18px;text-align:center}
-.main{margin-left:17vw;min-height:100vh;padding:20px;min-width:0}
+.main{margin-left:0;min-height:100vh;padding:20px;min-width:0}
 
 .page{display:none}.page.active{display:block}
 .page-title{font-size:20px;font-weight:700;margin-bottom:2px}
@@ -115,6 +115,9 @@ tr:hover td{background:#fafafa}
   .sidebar,.no-print{display:none!important}
   .main{margin-left:0!important;padding:0!important}
   .page{display:none!important}
+  .page.active{display:block!important}
+  #tes-resultado,#i1-resultado,#i2-resultado{display:block!important}
+  .scroll-y{max-height:none!important;overflow:visible!important}
   #print-zone{display:block!important}
 }
 #print-zone{display:none}
@@ -124,13 +127,13 @@ tr:hover td{background:#fafafa}
 .empty-icon{font-size:32px;margin-bottom:8px}
 /* Responsive sidebar */
 .sb-toggle{display:none;position:fixed;top:10px;left:10px;z-index:200;background:#111;color:#fff;border:none;border-radius:6px;padding:7px 10px;font-size:18px;cursor:pointer;line-height:1}
-@media(max-width:700px){
+@media(max-width:900px){
   .sb-toggle{display:block}
   .sidebar{left:-260px;transition:left .2s}
   .sidebar.open{left:0}
   .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
   .sb-overlay.show{display:block}
-  .main{margin-left:0!important;padding:16px;padding-top:50px}
+  .main{margin-left:0!important;padding:16px;padding-top:55px}
 }
 </style>
 </head>
@@ -257,7 +260,7 @@ tr:hover td{background:#fafafa}
   <div id="pagos-msg"></div>
   <div class="card" style="padding:0;overflow:hidden">
     <table>
-      <thead><tr><th>Socio</th><th>Lote</th><th>Estado legal</th><th>Cuota ideal</th><th>Monto cuota</th><th>Cuota plan</th><th>Diferencia</th><th>Estado</th><th>Nº Comprobante</th><th>Obs.</th></tr></thead>
+      <thead><tr><th>Socio</th><th>Lote</th><th>Estado legal</th><th>Cuota ideal</th><th>Monto cuota</th><th>Forma pago</th><th>Cuota plan</th><th>Diferencia</th><th>Estado</th><th>Nº Comprobante</th><th>Obs.</th></tr></thead>
       <tbody id="pagos-tbody"></tbody>
     </table>
   </div>
@@ -335,6 +338,7 @@ tr:hover td{background:#fafafa}
   <div class="tabs">
     <div class="tab active" onclick="showSubTab('informes','tesorero')">Informe tesorero</div>
     <div class="tab" onclick="showSubTab('informes','deudores')">Listado deudores</div>
+    <div class="tab" onclick="showSubTab('informes','tenencias')">Tenencias</div>
   </div>
 
   <div id="informes-estado" style="display:none">
@@ -376,6 +380,33 @@ tr:hover td{background:#fafafa}
     <div id="i1-resultado"></div>
   </div>
 
+  <div id="informes-tenencias" style="display:none">
+    <div class="card no-print">
+      <div class="page-sub" style="margin-bottom:12px">Registrá las tenencias de la mutual por período. Los valores en USD se convierten a pesos con la cotización del día.</div>
+      <div class="form-row c3">
+        <div class="field"><label>Período</label><select id="ten-periodo"></select></div>
+        <div class="field"><label>Efectivo ARS ($)</label><input type="number" id="ten-ars" placeholder="0" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px"></div>
+        <div class="field"><label>Cotización USD ($)</label><input type="number" id="ten-cotiz" placeholder="Ej: 1350" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px" oninput="calcTenTotal()"></div>
+      </div>
+      <div class="form-row c3">
+        <div class="field"><label>Dólares (USD)</label><input type="number" id="ten-usd" placeholder="0" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px" oninput="calcTenTotal()"></div>
+        <div class="field"><label>= ARS equivalente</label><div id="ten-usd-ars" style="padding:8px;background:#f5f5f5;border-radius:6px;font-weight:700;font-size:13px;color:#1a7a45">$0</div></div>
+        <div class="field"><label>Plazo fijo ($)</label><input type="number" id="ten-pf" placeholder="0" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px" oninput="calcTenTotal()"></div>
+      </div>
+      <div class="form-row c3">
+        <div class="field"><label>Vencimiento plazo fijo</label><input type="date" id="ten-pf-vto" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px"></div>
+        <div class="field"><label>Otros ($)</label><input type="number" id="ten-otros" placeholder="0" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px" oninput="calcTenTotal()"></div>
+        <div class="field"><label>Descripción otros</label><input type="text" id="ten-otros-desc" placeholder="Ej: cheques diferidos..." style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;font-size:13px"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:8px">
+        <div style="font-size:15px;font-weight:700">Total ARS: <span id="ten-total" style="color:#1a7a45">$0</span></div>
+        <button class="btn btn-primary" onclick="guardarTenencias()">💾 Guardar</button>
+      </div>
+      <div id="ten-msg" style="margin-top:8px"></div>
+    </div>
+    <div id="ten-historial"></div>
+  </div>
+
   <div id="informes-tesorero">
     <div class="no-print" style="display:flex;gap:8px;margin-bottom:16px">
       <button class="btn btn-primary" onclick="genTesorero()">🔄 Actualizar</button>
@@ -387,6 +418,7 @@ tr:hover td{background:#fafafa}
 </div>
 
 <!-- CONFIG -->
+
 <div id="page-config" class="page">
   <div class="page-title">Configuración</div>
   <div class="page-sub">Importá datos y gestioná el sistema.</div>
@@ -580,17 +612,7 @@ function guardarIPIM(){
   else ip.push({year,mes,valor,cuota,coef});
   ip.sort((a,b)=>pKey(a.year,a.mes).localeCompare(pKey(b.year,b.mes)));
   DB.set('ipim',ip);
-  function toggleSB(){
-  document.querySelector(".sidebar").classList.toggle("open");
-  document.getElementById("sb-overlay").classList.toggle("show");
-}
-function closeSB(){
-  document.querySelector(".sidebar").classList.remove("open");
-  document.getElementById("sb-overlay").classList.remove("show");
-}
-// cerrar sidebar al navegar en mobile
-const _origShowPage=typeof showPage==="function"?showPage:null;
-actualizarSidebarIPIM();
+  actualizarSidebarIPIM();
   renderPeriodosLista();
   showMsg('modal-msg',`✅ ${pLabel(year,mes)} guardado. Coef: ${fmtD(coef,6)}`,'ok');
   // Actualizar selects de informes/pagos
@@ -615,17 +637,7 @@ function renderPeriodosLista(){
 function eliminarPeriodo(pk){
   if(!confirm('¿Eliminar este período?')) return;
   DB.set('ipim',getIPIM().filter(i=>pKey(i.year,i.mes)!==pk));
-  function toggleSB(){
-  document.querySelector(".sidebar").classList.toggle("open");
-  document.getElementById("sb-overlay").classList.toggle("show");
-}
-function closeSB(){
-  document.querySelector(".sidebar").classList.remove("open");
-  document.getElementById("sb-overlay").classList.remove("show");
-}
-// cerrar sidebar al navegar en mobile
-const _origShowPage=typeof showPage==="function"?showPage:null;
-actualizarSidebarIPIM();
+  actualizarSidebarIPIM();
   renderPeriodosLista();
   initSelectsPeriodo();
 }
@@ -651,12 +663,13 @@ function showPage(name){
 }
 
 function showSubTab(page,tab){
-  const map={socios:['lista','nuevo'],informes:['tesorero','deudores']};
+  const map={socios:['lista','nuevo'],informes:['tesorero','deudores','tenencias']};
   map[page].forEach(t=>{ const el=document.getElementById(`${page}-${t}`); if(el)el.style.display='none'; });
   document.getElementById(`${page}-${tab}`).style.display='block';
   document.querySelectorAll(`#page-${page} .tab`).forEach((t,i)=>{
     t.classList.toggle('active',map[page][i]===tab);
   });
+  if(page==='informes'&&tab==='tenencias') initTenencias();
 }
 
 function initSelectsPeriodo(){
@@ -891,6 +904,7 @@ function renderPagos(){
     const montoPlan=pm[s.id]?.montoPlan??'';
     const comprobante=pm[s.id]?.comprobante??'';
     const notas=pm[s.id]?.notas??'';
+    const formaPago=pm[s.id]?.formaPago??'';
     const m=parseFloat(monto||0);
     const mp=parseFloat(montoPlan||0);
     const dif=cuota-m;
@@ -909,6 +923,11 @@ function renderPagos(){
       <td>${estadoBadge(s.estado)}</td>
       <td style="color:#aaa">$${fmt(cuota)}</td>
       <td><input class="pago-input" type="number" id="p-${s.id}" value="${monto}" placeholder="0" oninput="refreshBadge('${s.id}',${cuota})"></td>
+      <td><select id="fp-${s.id}" style="padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px">
+        <option value="" ${!formaPago?'selected':''}>—</option>
+        <option value="efectivo" ${formaPago==='efectivo'?'selected':''}>💵 Efectivo</option>
+        <option value="transferencia" ${formaPago==='transferencia'?'selected':''}>🏦 Transferencia</option>
+      </select></td>
       <td style="text-align:center">${tienePlan?`
         <div style="font-size:10px;color:#7a6000;margin-bottom:2px">Plan: $${fmt(cuotaPlanMes)}</div>
         <input class="pago-input" type="number" id="pp-${s.id}" value="${montoPlan}" placeholder="0" style="width:90px;border-color:#e8c840">
@@ -957,11 +976,13 @@ function guardarPagos(){
       const montoPlan=document.getElementById('pp-'+s.id)?.value||'';
       const comprobante=document.getElementById('cmp-'+s.id)?.value||'';
       const notas=document.getElementById('n-'+s.id)?.value||'';
+      const formaPago=document.getElementById('fp-'+s.id)?.value||'';
       pagos[pk][s.id]={
         monto: el.value||'',
         montoPlan,
         comprobante,
         notas,
+        formaPago,
         fecha: new Date().toLocaleDateString('es-AR')
       };
       // Si pagó cuota del plan, registrarlo en planes también
@@ -1515,17 +1536,7 @@ function cargarIPIMHistorico(){
   if(getIPIM().length && !confirm('Ya hay períodos IPIM cargados. ¿Reemplazar con el historial completo 2016-2026?')) return;
   const HISTORICO = [{"year":2016,"mes":1,"ipim":80.9883,"coef":1.0,"cuota":2100},{"year":2016,"mes":2,"ipim":85.0377,"coef":1.04999981,"cuota":2100},{"year":2016,"mes":3,"ipim":87.0786,"coef":1.02399994,"cuota":2100},{"year":2016,"mes":4,"ipim":88.3847,"coef":1.01499909,"cuota":2100},{"year":2016,"mes":5,"ipim":91.5666,"coef":1.03600057,"cuota":2100},{"year":2016,"mes":6,"ipim":94.222,"coef":1.02899966,"cuota":2100},{"year":2016,"mes":7,"ipim":96.766,"coef":1.02700006,"cuota":2100},{"year":2016,"mes":8,"ipim":97.1531,"coef":1.00400037,"cuota":2100},{"year":2016,"mes":9,"ipim":97.5417,"coef":1.00399987,"cuota":2100},{"year":2016,"mes":10,"ipim":98.127,"coef":1.00600051,"cuota":2100},{"year":2016,"mes":11,"ipim":99.2063,"coef":1.01099901,"cuota":2100},{"year":2016,"mes":12,"ipim":100.0,"coef":1.0080005,"cuota":2100},{"year":2017,"mes":1,"ipim":101.5859,"coef":1.015859,"cuota":2100},{"year":2017,"mes":2,"ipim":103.6859,"coef":1.02067216,"cuota":2100},{"year":2017,"mes":3,"ipim":106.1476,"coef":1.0237419,"cuota":2100},{"year":2017,"mes":4,"ipim":108.9667,"coef":1.0265583,"cuota":2100},{"year":2017,"mes":5,"ipim":110.5301,"coef":1.0143475,"cuota":2100},{"year":2017,"mes":6,"ipim":111.8477,"coef":1.01192073,"cuota":2100},{"year":2017,"mes":7,"ipim":113.7852,"coef":1.01732266,"cuota":2100},{"year":2017,"mes":8,"ipim":115.3819,"coef":1.01403258,"cuota":2100},{"year":2017,"mes":9,"ipim":117.5719,"coef":1.01898045,"cuota":2100},{"year":2017,"mes":10,"ipim":119.3528,"coef":1.01514733,"cuota":2100},{"year":2017,"mes":11,"ipim":120.994,"coef":1.01375083,"cuota":2100},{"year":2017,"mes":12,"ipim":124.7956,"coef":1.03141974,"cuota":2100},{"year":2018,"mes":1,"ipim":126.9887,"coef":1.01757354,"cuota":2100},{"year":2018,"mes":2,"ipim":130.0606,"coef":1.02419034,"cuota":2100},{"year":2018,"mes":3,"ipim":133.1054,"coef":1.02341063,"cuota":2100},{"year":2018,"mes":4,"ipim":136.7512,"coef":1.02739032,"cuota":2100},{"year":2018,"mes":5,"ipim":139.5893,"coef":1.02075375,"cuota":2100},{"year":2018,"mes":6,"ipim":144.8053,"coef":1.03736676,"cuota":2100},{"year":2018,"mes":7,"ipim":149.2966,"coef":1.03101613,"cuota":2100},{"year":2018,"mes":8,"ipim":155.1034,"coef":1.03889439,"cuota":2100},{"year":2018,"mes":9,"ipim":165.2383,"coef":1.06534286,"cuota":2100},{"year":2018,"mes":10,"ipim":174.1473,"coef":1.05391607,"cuota":2100},{"year":2018,"mes":11,"ipim":179.6388,"coef":1.03153365,"cuota":2100},{"year":2018,"mes":12,"ipim":184.2552,"coef":1.02569823,"cuota":2100},{"year":2019,"mes":1,"ipim":189.6101,"coef":1.02906241,"cuota":2100},{"year":2019,"mes":2,"ipim":196.7501,"coef":1.03765622,"cuota":2100},{"year":2019,"mes":3,"ipim":205.9571,"coef":1.0467954,"cuota":2100},{"year":2019,"mes":4,"ipim":213.0517,"coef":1.03444698,"cuota":2100},{"year":2019,"mes":5,"ipim":219.5691,"coef":1.0305907,"cuota":2100},{"year":2019,"mes":6,"ipim":225.537,"coef":1.02718005,"cuota":2100},{"year":2019,"mes":7,"ipim":230.494,"coef":1.02197866,"cuota":2100},{"year":2019,"mes":8,"ipim":239.6077,"coef":1.03953986,"cuota":2100},{"year":2019,"mes":9,"ipim":253.7102,"coef":1.05885662,"cuota":2100},{"year":2019,"mes":10,"ipim":262.0661,"coef":1.03293482,"cuota":2100},{"year":2019,"mes":11,"ipim":273.2158,"coef":1.04254537,"cuota":2100},{"year":2019,"mes":12,"ipim":283.4442,"coef":1.03743707,"cuota":2100},{"year":2020,"mes":1,"ipim":289.8299,"coef":1.02252895,"cuota":2100},{"year":2020,"mes":2,"ipim":295.666,"coef":1.02013629,"cuota":2100},{"year":2020,"mes":3,"ipim":305.5515,"coef":1.03343469,"cuota":2100},{"year":2020,"mes":4,"ipim":310.1243,"coef":1.01496573,"cuota":2100},{"year":2020,"mes":5,"ipim":314.9087,"coef":1.01542736,"cuota":2100},{"year":2020,"mes":6,"ipim":321.9738,"coef":1.02243539,"cuota":2100},{"year":2020,"mes":7,"ipim":328.2014,"coef":1.01934195,"cuota":2100},{"year":2020,"mes":8,"ipim":337.0632,"coef":1.0270011,"cuota":2100},{"year":2020,"mes":9,"ipim":346.6207,"coef":1.02835522,"cuota":2100},{"year":2020,"mes":10,"ipim":359.657,"coef":1.0376097,"cuota":2100},{"year":2020,"mes":11,"ipim":371.0211,"coef":1.03159705,"cuota":2100},{"year":2020,"mes":12,"ipim":385.8826,"coef":1.04005567,"cuota":2100},{"year":2021,"mes":1,"ipim":401.5071,"coef":1.04049029,"cuota":4100},{"year":2021,"mes":2,"ipim":415.8595,"coef":1.03574632,"cuota":4100},{"year":2021,"mes":3,"ipim":435.8657,"coef":1.04810807,"cuota":4100},{"year":2021,"mes":4,"ipim":453.6503,"coef":1.04080294,"cuota":4100},{"year":2021,"mes":5,"ipim":468.725,"coef":1.03322978,"cuota":4100},{"year":2021,"mes":6,"ipim":483.6049,"coef":1.03174548,"cuota":4100},{"year":2021,"mes":7,"ipim":498.0987,"coef":1.02997033,"cuota":4100},{"year":2021,"mes":8,"ipim":510.3942,"coef":1.02468487,"cuota":4100},{"year":2021,"mes":9,"ipim":528.4968,"coef":1.03546788,"cuota":4100},{"year":2021,"mes":10,"ipim":547.0802,"coef":1.03516275,"cuota":4100},{"year":2021,"mes":11,"ipim":560.9184,"coef":1.02529465,"cuota":4100},{"year":2021,"mes":12,"ipim":582.4575,"coef":1.0383997,"cuota":4100},{"year":2022,"mes":1,"ipim":605.0317,"coef":1.03875682,"cuota":6100},{"year":2022,"mes":2,"ipim":633.4341,"coef":1.04694366,"cuota":6100},{"year":2022,"mes":3,"ipim":676.0566,"coef":1.06728798,"cuota":6100},{"year":2022,"mes":4,"ipim":716.9399,"coef":1.06047319,"cuota":6100},{"year":2022,"mes":5,"ipim":753.147,"coef":1.05050228,"cuota":6100},{"year":2022,"mes":6,"ipim":793.0278,"coef":1.05295221,"cuota":6100},{"year":2022,"mes":7,"ipim":851.761,"coef":1.07406197,"cuota":6100},{"year":2022,"mes":8,"ipim":911.1316,"coef":1.06970336,"cuota":6100},{"year":2022,"mes":9,"ipim":967.3076,"coef":1.0616552,"cuota":6100},{"year":2022,"mes":10,"ipim":1028.706,"coef":1.0634735,"cuota":6100},{"year":2022,"mes":11,"ipim":1079.2787,"coef":1.04916147,"cuota":6100},{"year":2022,"mes":12,"ipim":1134.5875,"coef":1.05124608,"cuota":6100},{"year":2023,"mes":1,"ipim":1202.979,"coef":1.06027874,"cuota":6100},{"year":2023,"mes":2,"ipim":1282.7091,"coef":1.06627722,"cuota":6100},{"year":2023,"mes":3,"ipim":1381.1601,"coef":1.0767524,"cuota":6100},{"year":2023,"mes":4,"ipim":1497.2147,"coef":1.0840269,"cuota":6100},{"year":2023,"mes":5,"ipim":1613.5895,"coef":1.07772753,"cuota":6100},{"year":2023,"mes":6,"ipim":1709.6115,"coef":1.05950832,"cuota":6100},{"year":2023,"mes":7,"ipim":1818.0838,"coef":1.06344851,"cuota":6100},{"year":2023,"mes":8,"ipim":2044.2832,"coef":1.12441638,"cuota":6100},{"year":2023,"mes":9,"ipim":2304.9242,"coef":1.1274975,"cuota":6100},{"year":2023,"mes":10,"ipim":2496.273,"coef":1.08301739,"cuota":6100},{"year":2023,"mes":11,"ipim":2816.0628,"coef":1.1281069,"cuota":6100},{"year":2023,"mes":12,"ipim":3533.1922,"coef":1.25465675,"cuota":6100},{"year":2024,"mes":1,"ipim":4261.5324,"coef":1.20614225,"cuota":6100},{"year":2024,"mes":2,"ipim":4825.7881,"coef":1.13240676,"cuota":6100},{"year":2024,"mes":3,"ipim":5357.0929,"coef":1.110097,"cuota":6100},{"year":2024,"mes":4,"ipim":5830.2271,"coef":1.08831921,"cuota":6100},{"year":2024,"mes":5,"ipim":6073.7165,"coef":1.04176328,"cuota":6100},{"year":2024,"mes":6,"ipim":6351.7145,"coef":1.04577066,"cuota":22000},{"year":2024,"mes":7,"ipim":6607.7479,"coef":1.04030934,"cuota":22000},{"year":2024,"mes":8,"ipim":6883.4412,"coef":1.04172273,"cuota":22000},{"year":2024,"mes":9,"ipim":7122.2421,"coef":1.03469208,"cuota":22000},{"year":2024,"mes":10,"ipim":7313.9542,"coef":1.02691738,"cuota":22000},{"year":2024,"mes":11,"ipim":7491.4314,"coef":1.02426556,"cuota":22000},{"year":2024,"mes":12,"ipim":7694.0075,"coef":1.02704104,"cuota":22000},{"year":2025,"mes":1,"ipim":7864.1257,"coef":1.02211048,"cuota":22000},{"year":2025,"mes":2,"ipim":8052.9927,"coef":1.02401627,"cuota":22000},{"year":2025,"mes":3,"ipim":8353.3158,"coef":1.03729335,"cuota":22000},{"year":2025,"mes":4,"ipim":8585.6078,"coef":1.02780836,"cuota":22000},{"year":2025,"mes":5,"ipim":8714.4871,"coef":1.01501109,"cuota":22000},{"year":2025,"mes":6,"ipim":8855.5681,"coef":1.01618925,"cuota":22000},{"year":2025,"mes":7,"ipim":9023.973,"coef":1.01901684,"cuota":22000},{"year":2025,"mes":8,"ipim":9193.2441,"coef":1.01875794,"cuota":22000},{"year":2025,"mes":9,"ipim":9384.0922,"coef":1.0207596,"cuota":22000},{"year":2025,"mes":10,"ipim":9603.8623,"coef":1.02341943,"cuota":22000},{"year":2025,"mes":11,"ipim":9841.3581,"coef":1.0247292,"cuota":22000},{"year":2025,"mes":12,"ipim":10121.3715,"coef":1.02845272,"cuota":22000},{"year":2026,"mes":1,"ipim":10413.0309,"coef":1.02881619,"cuota":55000},{"year":2026,"mes":2,"ipim":10714.6255,"coef":1.02896319,"cuota":55000},{"year":2026,"mes":3,"ipim":11077.0608,"coef":1.03382622,"cuota":55000},{"year":2026,"mes":4,"ipim":11363.0904,"coef":1.0258218,"cuota":55000},{"year":2026,"mes":5,"ipim":0,"coef":1.0,"cuota":55000},{"year":2026,"mes":6,"ipim":0,"coef":1.0,"cuota":55000}];
   DB.set('ipim', HISTORICO);
-  function toggleSB(){
-  document.querySelector(".sidebar").classList.toggle("open");
-  document.getElementById("sb-overlay").classList.toggle("show");
-}
-function closeSB(){
-  document.querySelector(".sidebar").classList.remove("open");
-  document.getElementById("sb-overlay").classList.remove("show");
-}
-// cerrar sidebar al navegar en mobile
-const _origShowPage=typeof showPage==="function"?showPage:null;
-actualizarSidebarIPIM();
+  actualizarSidebarIPIM();
   initSelectsPeriodo();
   initInformes();
   showMsg('cfg-msg','✅ '+HISTORICO.length+' períodos IPIM cargados (Ene 2016 → Jun 2026)','ok');
@@ -1564,17 +1575,7 @@ function importar(input){
       if(d.socios) DB.set('socios',d.socios);
       if(d.ipim)   DB.set('ipim',d.ipim);
       if(d.pagos)  DB.set('pagos',d.pagos);
-      function toggleSB(){
-  document.querySelector(".sidebar").classList.toggle("open");
-  document.getElementById("sb-overlay").classList.toggle("show");
-}
-function closeSB(){
-  document.querySelector(".sidebar").classList.remove("open");
-  document.getElementById("sb-overlay").classList.remove("show");
-}
-// cerrar sidebar al navegar en mobile
-const _origShowPage=typeof showPage==="function"?showPage:null;
-actualizarSidebarIPIM();
+      actualizarSidebarIPIM();
       renderConfig();
       showMsg('cfg-msg','✅ Backup importado correctamente','ok');
     }catch(err){ alert('Archivo inválido'); }
@@ -1587,17 +1588,7 @@ function confirmarBorrarSocios(){
 function confirmarBorrarTodo(){
   if(confirm('¿Borrar TODO? Socios, períodos y pagos.')&&confirm('¿Confirmar?')){
     ['socios','ipim','pagos'].forEach(k=>DB.del(k));
-    function toggleSB(){
-  document.querySelector(".sidebar").classList.toggle("open");
-  document.getElementById("sb-overlay").classList.toggle("show");
-}
-function closeSB(){
-  document.querySelector(".sidebar").classList.remove("open");
-  document.getElementById("sb-overlay").classList.remove("show");
-}
-// cerrar sidebar al navegar en mobile
-const _origShowPage=typeof showPage==="function"?showPage:null;
-actualizarSidebarIPIM();
+    actualizarSidebarIPIM();
     renderConfig();
     showMsg('cfg-msg','Datos eliminados','ok');
   }
@@ -1796,9 +1787,115 @@ function closeSB(){
   document.querySelector(".sidebar").classList.remove("open");
   document.getElementById("sb-overlay").classList.remove("show");
 }
-// cerrar sidebar al navegar en mobile
-const _origShowPage=typeof showPage==="function"?showPage:null;
 actualizarSidebarIPIM();
+// =========================================================
+// TENENCIAS
+// =========================================================
+function getTenencias(){ return DB.get('tenencias')||{}; }
+
+function calcTenTotal(){
+  const usd=parseFloat(document.getElementById('ten-usd')?.value||0);
+  const cotiz=parseFloat(document.getElementById('ten-cotiz')?.value||0);
+  const pf=parseFloat(document.getElementById('ten-pf')?.value||0);
+  const otros=parseFloat(document.getElementById('ten-otros')?.value||0);
+  const ars=parseFloat(document.getElementById('ten-ars')?.value||0);
+  const usdArs=usd*cotiz;
+  const el=document.getElementById('ten-usd-ars');
+  if(el) el.textContent='$'+fmt(usdArs);
+  const total=ars+usdArs+pf+otros;
+  const elT=document.getElementById('ten-total');
+  if(elT) elT.textContent='$'+fmt(total);
+}
+
+function guardarTenencias(){
+  const pk=document.getElementById('ten-periodo')?.value;
+  if(!pk){ showMsg('ten-msg','Seleccioná un período','error'); return; }
+  const t=getTenencias();
+  t[pk]={
+    ars: parseFloat(document.getElementById('ten-ars')?.value||0),
+    usd: parseFloat(document.getElementById('ten-usd')?.value||0),
+    cotiz: parseFloat(document.getElementById('ten-cotiz')?.value||0),
+    pf: parseFloat(document.getElementById('ten-pf')?.value||0),
+    pfVto: document.getElementById('ten-pf-vto')?.value||'',
+    otros: parseFloat(document.getElementById('ten-otros')?.value||0),
+    otrosDesc: document.getElementById('ten-otros-desc')?.value||'',
+    fecha: new Date().toLocaleDateString('es-AR')
+  };
+  DB.set('tenencias',t);
+  showMsg('ten-msg','✅ Tenencias guardadas','ok');
+  renderHistorialTenencias();
+}
+
+function renderHistorialTenencias(){
+  const t=getTenencias();
+  const ip=getIPIM();
+  const el=document.getElementById('ten-historial');
+  if(!el) return;
+  const pks=Object.keys(t).sort((a,b)=>b.localeCompare(a));
+  if(!pks.length){ el.innerHTML='<div class="empty-state">Sin registros históricos aún.</div>'; return; }
+  el.innerHTML=`<div class="card" style="margin-top:16px">
+    <div style="font-weight:700;font-size:14px;margin-bottom:12px">Historial de tenencias</div>
+    <table>
+      <thead><tr><th>Período</th><th>Efectivo ARS</th><th>USD</th><th>Cotiz.</th><th>= ARS</th><th>Plazo fijo</th><th>Vto. PF</th><th>Otros</th><th>TOTAL ARS</th><th>Guardado</th></tr></thead>
+      <tbody>${pks.map(pk=>{
+        const r=t[pk];
+        const usdArs=(r.usd||0)*(r.cotiz||0);
+        const total=(r.ars||0)+usdArs+(r.pf||0)+(r.otros||0);
+        const per=ip.find(i=>pKey(i.year,i.mes)===pk);
+        const label=per?pLabel(per.year,per.mes):pk;
+        return `<tr>
+          <td style="font-weight:600">${label}</td>
+          <td>$${fmt(r.ars||0)}</td>
+          <td style="color:#1a7a45;font-weight:600">USD ${fmt(r.usd||0)}</td>
+          <td style="color:#aaa">$${fmt(r.cotiz||0)}</td>
+          <td>$${fmt(usdArs)}</td>
+          <td>$${fmt(r.pf||0)}</td>
+          <td style="color:#aaa;font-size:11px">${r.pfVto||'—'}</td>
+          <td>${r.otros?`$${fmt(r.otros||0)}<br><span style="font-size:10px;color:#aaa">${r.otrosDesc||''}</span>`:'—'}</td>
+          <td style="font-weight:700;color:#1a7a45">$${fmt(total)}</td>
+          <td style="color:#aaa;font-size:11px">${r.fecha||''}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function initTenencias(){
+  const ip=getIPIM();
+  const sel=document.getElementById('ten-periodo');
+  if(!sel) return;
+  sel.innerHTML=[...ip].reverse().map(i=>`<option value="${pKey(i.year,i.mes)}">${pLabel(i.year,i.mes)}</option>`).join('');
+  // Cargar último registro si existe
+  sel.onchange=function(){
+    const t=getTenencias()[this.value];
+    if(t){
+      document.getElementById('ten-ars').value=t.ars||'';
+      document.getElementById('ten-usd').value=t.usd||'';
+      document.getElementById('ten-cotiz').value=t.cotiz||'';
+      document.getElementById('ten-pf').value=t.pf||'';
+      document.getElementById('ten-pf-vto').value=t.pfVto||'';
+      document.getElementById('ten-otros').value=t.otros||'';
+      document.getElementById('ten-otros-desc').value=t.otrosDesc||'';
+      calcTenTotal();
+    } else {
+      ['ten-ars','ten-usd','ten-cotiz','ten-pf','ten-otros'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+      document.getElementById('ten-pf-vto').value='';
+      document.getElementById('ten-otros-desc').value='';
+      calcTenTotal();
+    }
+  };
+  // Disparar para cargar el período actual
+  sel.onchange.call(sel);
+  renderHistorialTenencias();
+}
+
+function ajustarMain(){
+  const sb=document.querySelector('.sidebar');
+  const main=document.querySelector('.main');
+  if(sb&&main) main.style.marginLeft=sb.getBoundingClientRect().width+'px';
+}
+ajustarMain();
+window.addEventListener('resize',ajustarMain);
 initSelectsPeriodo();
 initInformes();
 // Mostrar informe tesorero al arrancar
