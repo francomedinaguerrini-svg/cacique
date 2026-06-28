@@ -1632,35 +1632,47 @@ function previsualizarExcel(){
   const resumen = { nuevos:[], actualizados:[], sinCambios:[] };
 
   const parseSaldo = v => {
-    if(!v || v==='-' || v==='-   ' || v==='- ') return 0;
-    // formato argentino: 3.593.769,97 → quitar puntos, coma a punto
-    return parseFloat(v.replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''))||0;
+    if(!v) return 0;
+    const t = v.trim();
+    if(t==='-'||t==='-0,00'||t==='0,00'||t===''||/^-\s*$/.test(t)) return 0;
+    return parseFloat(t.replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''))||0;
+  };
+
+  const limpiarDNI = v => {
+    if(!v) return '';
+    // CUIL formato 20-14607700-6 → extraer los 8 dígitos del medio
+    const cuilMatch = v.match(/\d{2}[-](\d{7,8})[-]\d/);
+    if(cuilMatch) return cuilMatch[1];
+    return v.replace(/[.\-\s\/]/g,'').trim();
   };
 
   filasValidas.forEach(cols=>{
     let nombre, dni, saldo, estado, lote;
 
     if(formatoMutual){
-      // Nº | Nombre | DNI | Deuda | Estado
       lote   = cols[0]||'';
-      nombre = cols[1]||'';
-      dni    = (cols[2]||'').replace(/[.\-\/]/g,'').trim();
-      saldo  = parseSaldo(cols[3]||'0');
-      estado = cols[4]||'';
+      nombre = (cols[1]||'').trim();
+      dni    = limpiarDNI(cols[2]||'');
+      saldo  = parseSaldo(cols[3]||'');
+      estado = (cols[4]||'').trim();
+      // Si no hay DNI usar lote como identificador temporal
+      if(!dni) dni = 'LOTE'+lote;
     } else {
-      // Nombre | DNI | Tel | Email | Dir | Lote | Estado | Saldo
-      nombre = cols[0]||'';
-      dni    = (cols[1]||'').replace(/[.\-\/]/g,'').trim();
-      saldo  = parseSaldo(cols[7]||'0');
-      estado = cols[6]||'';
-      lote   = cols[5]||'';
+      nombre = (cols[0]||'').trim();
+      dni    = limpiarDNI(cols[1]||'');
+      saldo  = parseSaldo(cols[7]||'');
+      estado = (cols[6]||'').trim();
+      lote   = (cols[5]||'').trim();
     }
 
-    if(!dni || !nombre) return;
-    // Ignorar filas de totales
+    if(!nombre) return;
+    // Ignorar filas de totales o extras
+    if(!lote || !/^\d+$/.test(lote)) return;
     if(nombre.toLowerCase().includes('total') || /^\$/.test(nombre)) return;
 
-    const existente = socios.find(s=>s.dni===dni);
+    const existente = dni.startsWith('LOTE')
+      ? socios.find(s=>s.lote===lote)
+      : socios.find(s=>s.dni===dni);
 
     if(!existente){
       const nuevo = {
